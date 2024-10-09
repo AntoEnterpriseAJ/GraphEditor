@@ -1,6 +1,5 @@
 #include "include/Shader.h"
 
-
 const char* Shader::readFromPath(const char* path)
 {
     std::ifstream fin(path);
@@ -26,7 +25,7 @@ const char* Shader::readFromPath(const char* path)
 }
 
 Shader::Shader()
-    : m_ID{0}
+    : m_ID{ 0 }
 {}
 
 Shader::Shader(const char* vertexSource, const char* fragmentSource)
