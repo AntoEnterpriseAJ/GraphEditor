@@ -2,6 +2,7 @@
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "Shader.h"
+#include "ResourceManager.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -57,8 +58,8 @@ int main(void)
 
     // RENDER DATA:
 
-    constexpr float circleRadius = 5.0f;
-    constexpr int circleVerticesCount = 10;
+    constexpr float circleRadius = 1.0f;
+    constexpr int circleVerticesCount = 30;
 
     std::vector<float> circleVertices;
 
@@ -74,11 +75,6 @@ int main(void)
         circleVertices.push_back(circleRadius * glm::sin(glm::radians(angle)));
     }
 
-    for (int i = 0; i < circleVertices.size(); i += 2)
-    {
-		std::cout << "Triangle (" << circleVertices[i] << ", " << circleVertices[i + 1] << ")\n";
-    }
-
 	unsigned int VAOCircle, VBOCircle;
 	glGenVertexArrays(1, &VAOCircle);
 	glBindVertexArray(VAOCircle);
@@ -92,9 +88,10 @@ int main(void)
 	glEnableVertexAttribArray(0);
 
     // CIRCLE SHADER
-    Shader circleShader("C:\\Users\\Anto\\source\\repos\\GraphEditor\\res\\shaders\\circle.vert"
-                        , "C:\\Users\\Anto\\source\\repos\\GraphEditor\\res\\shaders\\circle.frag");
-
+	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
+	ResourceManager::getShader("circle").bind();
+    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
@@ -102,7 +99,7 @@ int main(void)
 
 		glBindVertexArray(VAOCircle);
 
-		glDrawArrays(GL_TRIANGLES, 0, circleVerticesCount);
+		glDrawArrays(GL_TRIANGLES, 0, circleVertices.size() / 2);
 
         glfwSwapBuffers(window);
 
