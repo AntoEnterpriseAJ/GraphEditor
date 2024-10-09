@@ -66,6 +66,11 @@ int main(void)
         std::cout << "screen size: (" << width << "x" << height << ")\n";
         std::cout << "cursor at (" << xPos << ", " << yPos << ")\n";
 
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+
         glfwPollEvents();
     }
 
