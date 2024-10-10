@@ -5,6 +5,8 @@
 #include "ResourceManager.h"
 #include "Graph.h"
 #include "GraphNode.h"
+#include "ft2build.h"
+#include "freetype/freetype.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
