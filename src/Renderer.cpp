@@ -30,6 +30,46 @@ void Renderer::render(const GraphNode& node, Shader& shader) const
 	glDrawArrays(GL_TRIANGLES, 0, 90);
 }
 
+void Renderer::render(const Edge& edge, Shader& shader) const
+{
+    shader.bind();
+
+    glm::mat4 model(1.0f);
+
+    int width, height;
+    glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
+
+    shader.setMat4("model", model);
+    shader.setMat4("projection", projection);
+
+    std::vector<float> edgeVertices = {
+        edge.getStartNode().getPosition().x, edge.getStartNode().getPosition().y, 
+        edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y
+    };
+
+    GLuint edgeVAO, edgeVBO;
+    glGenVertexArrays(1, &edgeVAO);
+    glBindVertexArray(edgeVAO);
+
+    glGenBuffers(1, &edgeVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, edgeVBO);
+    glBufferData(GL_ARRAY_BUFFER, edgeVertices.size() * sizeof(float), edgeVertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    glBindVertexArray(edgeVAO);
+    glDrawArrays(GL_LINES, 0, 2);
+    glBindVertexArray(0);
+
+    glDeleteBuffers(1, &edgeVBO);
+    glDeleteVertexArrays(1, &edgeVAO);
+}
+
 void Renderer::initRenderData()
 {
     std::vector<float> circleVertices;
