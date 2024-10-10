@@ -11,6 +11,9 @@ public:
 
 	void addNode(const GraphNode& node);
 private:
+	void handleInput();
+	bool checkValidNodePosition(glm::vec2 position) const;
+private:
 	std::vector<GraphNode> m_nodes;
 	Renderer m_renderer;
 };

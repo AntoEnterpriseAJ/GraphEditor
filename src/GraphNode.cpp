@@ -11,3 +11,8 @@ glm::vec2 GraphNode::getPosition() const
 {
 	return m_position;
 }
+
+glm::vec2 GraphNode::getSize() const
+{
+	return m_size;
+}

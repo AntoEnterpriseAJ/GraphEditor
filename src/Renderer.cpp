@@ -16,11 +16,10 @@ void Renderer::render(const GraphNode& node, Shader& shader) const
 
     glm::mat4 model(1.0f);
     model = glm::translate(model, glm::vec3(node.getPosition(), 1.0f));
-	model = glm::scale(model, glm::vec3(50.0f, 50.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(node.getSize(), 1.0f));
 
     int width, height;
     glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-	std::cout << "Width: " << width << " Height: " << height << std::endl;
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
 
     shader.bind();
