@@ -113,6 +113,28 @@ void TextRenderer::RenderText(const Shader& shader, const std::string& text, flo
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+float TextRenderer::calculateTextWidth(const std::string& text, float scale) const
+{
+	float width = 0.0f;
+	for (const auto& character : text)
+	{
+		CharacterData charData = m_characterData.at(character);
+		width += (charData.advance >> 6) * scale;
+	}
+	return width;
+}
+
+float TextRenderer::calculateTextHeight(const std::string& text, float scale) const
+{
+	float height = 0.0f;
+	for (const auto& character : text)
+	{
+		CharacterData charData = m_characterData.at(character);
+		height = std::max(height, charData.size.y * scale);
+	}
+	return height;
+}
+
 void TextRenderer::initRenderData()
 {
     float quadData[] = {
