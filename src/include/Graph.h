@@ -2,6 +2,7 @@
 #include "GraphNode.h"
 #include "Edge.h"
 #include "Renderer.h"
+#include "TextRenderer.h"
 
 class Graph
 {
@@ -21,4 +22,5 @@ private:
 	std::vector<GraphNode> m_nodes;
 	std::vector<Edge> m_edges;
 	Renderer m_renderer;
+	TextRenderer m_textRenderer;
 };

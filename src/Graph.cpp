@@ -5,9 +5,10 @@
 #include <chrono>
 
 Graph::Graph()
-	: m_nodes{}, m_renderer{}, m_oriented{false}
+	: m_nodes{}, m_renderer{}, m_oriented{ false }, m_textRenderer{"res/fonts/Astron.otf", 40}
 {
 	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
+	ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
 }
 
 void Graph::render()
@@ -23,6 +24,8 @@ void Graph::render()
 	{
 		m_renderer.render(edge, ResourceManager::getShader("circle"));
 	}
+
+	m_textRenderer.RenderText(ResourceManager::getShader("text"), "Hello World", 40.0f, 40.0f, 1.0f, { 1.0f, 1.0f, 1.0f });
 }
 
 void Graph::addNode(const GraphNode& node)
