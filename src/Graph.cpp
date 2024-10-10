@@ -5,7 +5,7 @@
 #include <chrono>
 
 Graph::Graph()
-	: m_nodes{}, m_renderer{}, m_oriented{ false }, m_textRenderer{"res/fonts/Astron.otf", 40}
+	: m_nodes{}, m_renderer{}, m_oriented{ false }
 {
 	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
 	ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
@@ -15,17 +15,15 @@ void Graph::render()
 {
 	this->handleInput(); // TODO: move this
 
-	for (const auto& node : m_nodes)
-	{
-		m_renderer.render(node, ResourceManager::getShader("circle"));
-	}
-
 	for (const auto& edge : m_edges)
 	{
 		m_renderer.render(edge, ResourceManager::getShader("circle"));
 	}
 
-	m_textRenderer.RenderText(ResourceManager::getShader("text"), "Hello World", 40.0f, 40.0f, 1.0f, { 1.0f, 1.0f, 1.0f });
+	for (const auto& node : m_nodes)
+	{
+		m_renderer.render(node, ResourceManager::getShader("circle"), ResourceManager::getShader("text"));
+	}
 }
 
 void Graph::addNode(const GraphNode& node)
@@ -52,7 +50,7 @@ void Graph::handleInput()
 
 		if (checkValidNodePosition(glm::vec2{xPos, yPos}))
 		{
-			this->addNode(GraphNode{glm::vec2{xPos, yPos}});
+			this->addNode(GraphNode{glm::vec2{xPos, yPos}, static_cast<unsigned int>(m_nodes.size() + 1)});
 			std::this_thread::sleep_for(std::chrono::milliseconds(200)); // TODO: remove this
 			nodeSelected = false;
 		}
