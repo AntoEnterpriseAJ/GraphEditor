@@ -3,6 +3,10 @@
 #include "GLFW/glfw3.h"
 
 
+GraphNode::GraphNode()
+	: m_position{ 0.0f, 0.0f }, m_color{ 1.0f, 0.0f, 0.0f }, m_size{ 30.0f, 30.0f }
+{}
+
 GraphNode::GraphNode(glm::vec2 position, glm::vec2 size, glm::vec3 color)
 	: m_position{ position }, m_color{ color }, m_size{ size }
 {}
