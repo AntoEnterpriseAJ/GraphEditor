@@ -49,12 +49,14 @@ void Graph::handleInput()
 
 		if (checkValidNodePosition(glm::vec2{xPos, yPos}))
 		{
-			this->addNode(GraphNode{ glm::vec2{ static_cast<float>(xPos), static_cast<float>(yPos) } });
+			this->addNode(GraphNode{glm::vec2{xPos, yPos}});
 			std::this_thread::sleep_for(std::chrono::milliseconds(200)); // TODO: remove this
 			nodeSelected = false;
 		}
 		else
-			checkNodeSelect(glm::vec2{xPos, yPos});
+		{
+			checkNodeSelect(glm::vec2{ xPos, yPos });
+		}
 	}
 }
 
