@@ -30,6 +30,8 @@ void Graph::addNode(const GraphNode& node)
 	m_nodes.push_back(node);
 }
 
+static bool nodeSelected = false;
+
 void Graph::handleInput()
 {
 	GLFWwindow* window = glfwGetCurrentContext();
@@ -49,13 +51,13 @@ void Graph::handleInput()
 		{
 			this->addNode(GraphNode{ glm::vec2{ static_cast<float>(xPos), static_cast<float>(yPos) } });
 			std::this_thread::sleep_for(std::chrono::milliseconds(200)); // TODO: remove this
+			nodeSelected = false;
 		}
 		else
 			checkNodeSelect(glm::vec2{xPos, yPos});
 	}
 }
 
-static bool nodeSelected = false;
 static const GraphNode* edgeStart;
 
 void Graph::checkNodeSelect(glm::vec2 position)
