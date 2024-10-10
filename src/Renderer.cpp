@@ -5,14 +5,14 @@
 #include "GLFW/glfw3.h"
 
 Renderer::Renderer()
-	: m_circleVAO{ 0 }, m_circleVBO{ 0 }
+	: m_circleVAO{ 0 }, m_circleVBO{ 0 }, m_textRenderer{ "res/fonts/Astron.otf", 40 }
 {
     initRenderData();
 }
 
-void Renderer::render(const GraphNode& node, Shader& shader) const
+void Renderer::render(const GraphNode& node, Shader& nodeShader, Shader& textShader)
 {
-    shader.bind();
+    nodeShader.bind();
 
     glm::mat4 model(1.0f);
     model = glm::translate(model, glm::vec3(node.getPosition(), 1.0f));
@@ -22,12 +22,23 @@ void Renderer::render(const GraphNode& node, Shader& shader) const
     glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
 
-    shader.bind();
-    shader.setMat4("model", model);
-    shader.setMat4("projection", projection);
+    nodeShader.bind();
+    nodeShader.setMat4("model", model);
+    nodeShader.setMat4("projection", projection);
 
 	glBindVertexArray(m_circleVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 90);
+
+	std::string nodeID = std::to_string(node.getID());
+	float textWidth = m_textRenderer.calculateTextWidth(nodeID);
+	float textHeight = m_textRenderer.calculateTextHeight(nodeID);
+
+    float centeredX = node.getPosition().x - (textWidth / 2.0f);
+    float centeredY = node.getPosition().y - (textHeight / 2.0f);
+
+	m_textRenderer.RenderText(textShader, std::to_string(node.getID()), centeredX, centeredY, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+
+	glBindVertexArray(0);
 }
 
 void Renderer::render(const Edge& edge, Shader& shader) const
