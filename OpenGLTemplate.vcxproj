@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Graph.cpp" />
+    <ClCompile Include="src\Edge.cpp" />
     <ClCompile Include="src\GraphNode.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -148,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\include\Graph.h" />
+    <ClInclude Include="src\include\Edge.h" />
     <ClInclude Include="src\include\GraphNode.h" />
     <ClInclude Include="src\include\Renderer.h" />
     <ClInclude Include="src\include\ResourceManager.h" />
