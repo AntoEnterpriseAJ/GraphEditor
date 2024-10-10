@@ -1,4 +1,6 @@
 #include "TextRenderer.h"
+#include "glm/glm.hpp"
+#include "GLFW/glfw3.h"
 
 TextRenderer::TextRenderer(const char* fontPath, unsigned int fontSize)
     : m_quadVAO{0}, m_quadVBO{0}
@@ -78,9 +80,12 @@ void TextRenderer::RenderText(const Shader& shader, const std::string& text, flo
     shader.setVec3("textColor", color);
     
     glm::mat4 orthographicProjection(float l, float r, float b, float t, float n, float f);
-    glm::mat4 ortho = orthographicProjection(0.0f, 800.0f, 0.0f, 600.0f, -1.0f, 1.0f);
+	GLFWwindow* window = glfwGetCurrentContext();
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
 
-    shader.setMat4("projection", ortho);
+    shader.setMat4("projection", projection);
 
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(m_quadVAO);
@@ -116,7 +121,7 @@ void TextRenderer::initRenderData()
         1.0f, 1.0f,
         1.0f, 1.0f,
         0.0f, 1.0f,
-        0.0f, 0.0f
+        0.0f, 0.0f,
     };
 
     glGenVertexArrays(1, &m_quadVAO);

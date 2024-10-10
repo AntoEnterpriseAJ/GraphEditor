@@ -5,8 +5,6 @@
 #include "ResourceManager.h"
 #include "Graph.h"
 #include "GraphNode.h"
-#include "ft2build.h"
-#include "freetype/freetype.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -16,7 +14,7 @@ void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum 
                             GLsizei length, const char* message, const void* userParam);
 
 static constexpr int initialWindowWidth  = 1280;
-static constexpr int initialWindowHeight = 960;
+static constexpr int initialWindowHeight = 960; 
 
 int main(void)
 {
@@ -61,8 +59,9 @@ int main(void)
     else std::cout << "WARNING::DEBUG_OUTPUT: couldn't initialize" << std::endl;
 
     Graph graph;
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.2f, 0.2f, 0.5f, 1.0f);

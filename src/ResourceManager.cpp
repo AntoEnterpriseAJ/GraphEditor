@@ -7,7 +7,7 @@ std::unordered_map<std::string, Shader> ResourceManager::m_shaders;
 
 Texture2D ResourceManager::loadTextureFromFile(const char* texturePath)
 {
-    stbi_set_flip_vertically_on_load(false);
+    stbi_set_flip_vertically_on_load(true);
 
     int width, height, channels;
     unsigned char* imageData = stbi_load(texturePath, &width, &height, &channels, 0);
