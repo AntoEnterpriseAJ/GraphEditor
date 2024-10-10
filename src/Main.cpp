@@ -3,6 +3,8 @@
 #include "glm/glm.hpp"
 #include "Shader.h"
 #include "ResourceManager.h"
+#include "Graph.h"
+#include "GraphNode.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -57,7 +59,6 @@ int main(void)
     else std::cout << "WARNING::DEBUG_OUTPUT: couldn't initialize" << std::endl;
 
     // RENDER DATA:
-
     constexpr float circleRadius = 1.0f;
     constexpr int circleVerticesCount = 30;
 
@@ -88,20 +89,20 @@ int main(void)
 	glEnableVertexAttribArray(0);
 
     // CIRCLE SHADER
-	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
-	ResourceManager::getShader("circle").bind();
-    
+
+    Graph graph;
+	graph.addNode(GraphNode{ glm::vec2{ 100.0f, 100.0f } });
+	graph.addNode(GraphNode{ glm::vec2{ 200.0f, 300.0f } });
+	graph.addNode(GraphNode{ glm::vec2{ 400.0f, 300.0f } });
+	graph.addNode(GraphNode{ glm::vec2{ 500.0f, 100.0f } });
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-		glBindVertexArray(VAOCircle);
-
-		glDrawArrays(GL_TRIANGLES, 0, circleVertices.size() / 2);
-
-        glfwSwapBuffers(window);
+        graph.render();
 
         int width, height;
         glfwGetWindowSize(window, &width, &height);
@@ -111,6 +112,14 @@ int main(void)
 
         //std::cout << "screen size: (" << width << "x" << height << ")\n";
         //std::cout << "cursor at (" << xPos << ", " << yPos << ")\n";
+
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            std::cout << "mouse button 1 pressed\n";
+            graph.addNode(GraphNode{ glm::vec2{ static_cast<float>(xPos), static_cast<float>(yPos) } });
+        }
+
+        glfwSwapBuffers(window);
 
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
