@@ -56,7 +56,7 @@ void Renderer::render(const Edge& edge, Shader& shader) const
     shader.setMat4("model", model);
     shader.setMat4("projection", projection);
 
-    glm::vec2 edgeStart{ edge.getStartNode().getPosition(), edge.getStartNode().getPosition().y};
+    glm::vec2 edgeStart{ edge.getStartNode().getPosition().x, edge.getStartNode().getPosition().y};
     glm::vec2 edgeEnd{ edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y };
 
     glm::vec2 dir = glm::normalize(edgeEnd - edgeStart);
