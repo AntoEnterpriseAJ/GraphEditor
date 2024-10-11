@@ -3,6 +3,8 @@
 #include "glm/glm.hpp"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/rotate_vector.hpp"
 
 Renderer::Renderer()
 	: m_circleVAO{ 0 }, m_circleVBO{ 0 }, m_textRenderer{ "res/fonts/Astron.otf", 40 }
@@ -55,7 +57,7 @@ void Renderer::render(const Edge& edge, Shader& shader) const
     shader.setMat4("projection", projection);
 
     std::vector<float> edgeVertices = {
-        edge.getStartNode().getPosition().x, edge.getStartNode().getPosition().y, 
+        edge.getStartNode().getPosition().x, edge.getStartNode().getPosition().y,
         edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y
     };
 
@@ -70,15 +72,53 @@ void Renderer::render(const Edge& edge, Shader& shader) const
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
     glBindVertexArray(edgeVAO);
+    glLineWidth(6.0f);
     glDrawArrays(GL_LINES, 0, 2);
-    glBindVertexArray(0);
 
     glDeleteBuffers(1, &edgeVBO);
     glDeleteVertexArrays(1, &edgeVAO);
+
+    glm::vec2 dir = glm::normalize(edge.getEndNode().getPosition() - edge.getStartNode().getPosition());
+    glm::vec3 arrow1 = glm::vec3{ dir, 0.0f };
+    glm::vec3 arrow2 = glm::vec3{ dir, 0.0f };
+
+    float aSide = edge.getEndNode().getPosition().x - edge.getStartNode().getPosition().x;
+    float bSide = edge.getEndNode().getPosition().y - edge.getStartNode().getPosition().y;
+    float alpha = glm::atan(bSide / aSide);
+
+    arrow1 = glm::rotate(arrow1, glm::radians(-135.0f + alpha), glm::vec3(0.0f, 0.0f, 1.0f));
+    arrow2 = glm::rotate(arrow2, glm::radians(135.0f - alpha), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    constexpr float arrowLength = 50.0f;
+    arrow1 *= arrowLength;
+    arrow2 *= arrowLength;
+
+    float arrowsVertices[] = {
+        edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y,
+        edge.getEndNode().getPosition().x + arrow1.x, edge.getEndNode().getPosition().y + arrow1.y,
+        edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y,
+        edge.getEndNode().getPosition().x + arrow2.x, edge.getEndNode().getPosition().y + arrow2.y
+    };
+
+    GLuint arrowsVAO, arrowsVBO;
+    glGenVertexArrays(1, &arrowsVAO);
+    glBindVertexArray(arrowsVAO);
+
+    glGenBuffers(1, &arrowsVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, arrowsVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(arrowsVertices), arrowsVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(arrowsVAO);
+    glDrawArrays(GL_LINES, 0, 4);
+    glBindVertexArray(0);
+
+    glDeleteBuffers(1, &arrowsVBO);
+    glDeleteVertexArrays(1, &arrowsVAO);
+    glLineWidth(1.0f);
 }
 
 void Renderer::initRenderData()
