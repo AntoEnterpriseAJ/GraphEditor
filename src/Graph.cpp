@@ -19,7 +19,7 @@ void Graph::render()
 
 	for (const auto& edge : m_edges)
 	{
-		m_renderer.render(edge, ResourceManager::getShader("circle"), m_oriented);
+		m_renderer.render(edge, m_nodes, ResourceManager::getShader("circle"), m_oriented);
 	}
 
 	for (const auto& node : m_nodes)
@@ -45,8 +45,8 @@ void Graph::logAdjencyMatrix(const std::string& fileName)
 	std::vector<std::vector<int>> adjMatrix(m_nodes.size(), std::vector<int>(m_nodes.size(), 0));
 	for (const auto& edge : m_edges)
 	{
-		int startNodeID = edge.getStartNode().getID();
-		int endNodeID = edge.getEndNode().getID();
+		int startNodeID = m_nodes[edge.getStartNodeID() - 1].getID();
+		int endNodeID = m_nodes[edge.getEndNodeID() - 1].getID();
 
 		if (m_oriented)
 		{
@@ -71,6 +71,11 @@ void Graph::logAdjencyMatrix(const std::string& fileName)
 }
 
 static bool nodeSelected = false;
+static bool pressed = false;
+static bool longClick = false;
+static float pressStartTime = 0.0f;
+static float holdThreshold = 0.35f;
+static GraphNode* nodeToDrag = nullptr;
 
 void Graph::handleInput()
 {
@@ -83,30 +88,95 @@ void Graph::handleInput()
 
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
-		std::cout << "mouse button 1 pressed\n";
+		if (!pressed)
+		{
+			pressed = true;
+			pressStartTime = glfwGetTime();
+		}
+
+		float pressDuration = glfwGetTime() - pressStartTime;
+		if (!longClick && pressDuration >= holdThreshold)
+		{
+			longClick = true;
+			std::cout << "long click\n";
+		}
+	}
+
+	if (longClick)
+	{
 		double xPos, yPos;
 		glfwGetCursorPos(window, &xPos, &yPos);
 
-		if (checkValidNodePosition(glm::vec2{xPos, yPos}))
+		if (nodeToDrag == nullptr)
 		{
-			this->addNode(GraphNode{glm::vec2{xPos, yPos}, static_cast<unsigned int>(m_nodes.size() + 1)});
-			std::this_thread::sleep_for(std::chrono::milliseconds(200)); // TODO: remove this
-			nodeSelected = false;
+			for (auto& node : m_nodes)
+			{
+				if (glm::distance(node.getPosition(), glm::vec2{ xPos, yPos }) <= node.getSize().x)
+				{
+					nodeToDrag = &node;
+					break;
+				}
+			}
 		}
-		else
+
+		if (nodeToDrag)
 		{
-			checkNodeSelect(glm::vec2{ xPos, yPos });
+			std::cout << "node with id: " << nodeToDrag->getID() << " selected\n";
+			nodeToDrag->setPosition(glm::vec2{ xPos, yPos });
 		}
+	}
+
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && pressed)
+	{
+		if (longClick && nodeToDrag)
+		{
+			for (const auto& node : m_nodes)
+			{
+				if (&node == nodeToDrag)
+				{
+					continue;
+				}
+
+				if (glm::distance(node.getPosition(), nodeToDrag->getPosition()) < node.getSize().x * 2.0f)
+				{
+					glm::vec2 offsetDir = glm::normalize(nodeToDrag->getPosition() - node.getPosition());
+					float offset = (node.getSize().x + nodeToDrag->getSize().x) - glm::distance(node.getPosition(), nodeToDrag->getPosition());
+
+					nodeToDrag->setPosition(nodeToDrag->getPosition() + offsetDir * offset);
+				}
+			}
+		}
+
+		if (!longClick)
+		{
+			std::cout << "short click\n";
+
+			std::cout << "mouse button 1 pressed\n";
+			double xPos, yPos;
+			glfwGetCursorPos(window, &xPos, &yPos);
+
+			if (checkValidNodePosition(glm::vec2{ xPos, yPos }))
+			{
+				this->addNode(GraphNode{ glm::vec2{xPos, yPos}, static_cast<unsigned int>(m_nodes.size() + 1) });
+				nodeSelected = false;
+			}
+			else
+			{
+				checkNodeSelect(glm::vec2{ xPos, yPos });
+			}
+		}
+
+		nodeToDrag = nullptr;
+		pressed = false;
+		longClick = false;
 	}
 }
 
-static const GraphNode* edgeStart;
+static GraphNode* edgeStart;
 
 void Graph::checkNodeSelect(glm::vec2 position)
 {
-	std::this_thread::sleep_for(std::chrono::milliseconds(200)); // TODO: remove this
-
-	for (const auto& node : m_nodes)
+	for (auto& node : m_nodes)
 	{
 		if (glm::distance(node.getPosition(), position) >= node.getSize().x)
 		{
@@ -129,7 +199,7 @@ void Graph::checkNodeSelect(glm::vec2 position)
 	nodeSelected = false;
 }
 
-void Graph::tryAddEdge(const GraphNode& edgeStart, const GraphNode& edgeEnd)
+void Graph::tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd)
 {
 	if (edgeStart.getPosition() == edgeEnd.getPosition())
 	{
@@ -139,8 +209,8 @@ void Graph::tryAddEdge(const GraphNode& edgeStart, const GraphNode& edgeEnd)
 
 	for (const auto& edge : m_edges)
 	{
-		if (edge.getStartNode().getPosition() == edgeStart.getPosition() 
-			&& edge.getEndNode().getPosition() == edgeEnd.getPosition())
+		if (m_nodes[edge.getStartNodeID() - 1].getPosition() == edgeStart.getPosition()
+			&& m_nodes[edge.getEndNodeID() - 1].getPosition() == edgeEnd.getPosition())
 		{
 			std::cout << "Edge already exists\n";
 			return;
@@ -148,14 +218,16 @@ void Graph::tryAddEdge(const GraphNode& edgeStart, const GraphNode& edgeEnd)
 	}
 
 	std::cout << "Edge added\n";
-	m_edges.push_back(Edge{ edgeStart, edgeEnd });
+	m_edges.push_back(Edge{ edgeStart.getID(), edgeEnd.getID() });
 	nodeSelected = false;
 
 	for (const auto& edge : m_edges)
 	{
 		std::cout << "Current edges: \n";
-		std::cout << "Start: " << edge.getStartNode().getPosition().x << " " << edge.getStartNode().getPosition().y << "\n";
-		std::cout << "End: " << edge.getEndNode().getPosition().x << " " << edge.getEndNode().getPosition().y << "\n";
+		std::cout << "Start: " << m_nodes[edge.getStartNodeID() - 1].getPosition().x
+			<< " " << m_nodes[edge.getStartNodeID() - 1].getPosition().y << "\n";
+		std::cout << "End: " << m_nodes[edge.getEndNodeID() - 1].getPosition().x
+			<< " " << m_nodes[edge.getEndNodeID() - 1].getPosition().y << "\n";
 	}
 }
 

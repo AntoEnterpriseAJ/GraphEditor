@@ -8,9 +8,10 @@ public:
 	GraphNode();
 	GraphNode(glm::vec2 position, unsigned int ID = 0, glm::vec2 size = { 30.0f, 30.0f }, glm::vec3 color = { 1.0f, 0.0f, 0.0f });
 
+	void setPosition(glm::vec2 position);
+
 	glm::vec2 getPosition() const;
 	glm::vec2 getSize() const;
-
 	unsigned int getID() const;
 
 private:

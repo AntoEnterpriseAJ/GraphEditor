@@ -10,6 +10,11 @@ GraphNode::GraphNode(glm::vec2 position, unsigned int ID, glm::vec2 size, glm::v
 	: m_position{ position }, m_ID{ID}, m_color{ color }, m_size{ size }
 {}
 
+void GraphNode::setPosition(glm::vec2 position)
+{
+	m_position = position;
+}
+
 glm::vec2 GraphNode::getPosition() const
 {
 	return m_position;

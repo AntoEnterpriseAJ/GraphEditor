@@ -16,7 +16,7 @@ public:
 	void logAdjencyMatrix(const std::string& fileName);
 private:
 	void handleInput();
-	void tryAddEdge(const GraphNode& edgeStart, const GraphNode& edgeEnd);
+	void tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd);
 	void checkNodeSelect(glm::vec2 position);
 	bool checkValidNodePosition(glm::vec2 position) const;
 private:

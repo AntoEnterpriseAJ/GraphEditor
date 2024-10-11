@@ -5,12 +5,12 @@
 class Edge
 {
 public:
-	Edge(const GraphNode& nodeStart, const GraphNode& nodeEnd);
+	Edge(unsigned int nodeStartID, unsigned int nodeEndID);
 
-	const GraphNode& getStartNode() const;
-	const GraphNode& getEndNode() const;
+	unsigned int getStartNodeID() const;
+	unsigned int getEndNodeID() const;
 
 private:
-	GraphNode m_nodeStart;
-	GraphNode m_nodeEnd;
+	unsigned int m_nodeStartID;
+	unsigned int m_nodeEndID;
 };

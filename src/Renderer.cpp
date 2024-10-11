@@ -43,7 +43,7 @@ void Renderer::render(const GraphNode& node, Shader& nodeShader, Shader& textSha
 	glBindVertexArray(0);
 }
 
-void Renderer::render(const Edge& edge, Shader& shader, bool oriented) const
+void Renderer::render(const Edge& edge, const std::vector<GraphNode>& nodes, Shader& shader, bool oriented) const
 {
     shader.bind();
 
@@ -56,13 +56,13 @@ void Renderer::render(const Edge& edge, Shader& shader, bool oriented) const
     shader.setMat4("model", model);
     shader.setMat4("projection", projection);
 
-    glm::vec2 edgeStart{ edge.getStartNode().getPosition().x, edge.getStartNode().getPosition().y};
-    glm::vec2 edgeEnd{ edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y };
+    glm::vec2 edgeStart{ nodes[edge.getStartNodeID() - 1].getPosition().x, nodes[edge.getStartNodeID() - 1].getPosition().y};
+    glm::vec2 edgeEnd{ nodes[edge.getEndNodeID() - 1].getPosition().x, nodes[edge.getEndNodeID() - 1].getPosition().y };
 
     glm::vec2 dir = glm::normalize(edgeEnd - edgeStart);
 
-    edgeStart += dir * edge.getStartNode().getSize();
-    edgeEnd   += -dir * edge.getStartNode().getSize();
+    edgeStart += dir * nodes[edge.getStartNodeID() - 1].getSize();
+    edgeEnd   += -dir * nodes[edge.getStartNodeID() - 1].getSize();
 
     std::vector<float> edgeVertices = {
         edgeStart.x, edgeStart.y,
@@ -94,8 +94,8 @@ void Renderer::render(const Edge& edge, Shader& shader, bool oriented) const
         glm::vec3 arrow1 = glm::vec3{ dir, 0.0f };
         glm::vec3 arrow2 = glm::vec3{ dir, 0.0f };
 
-        float aSide = edge.getEndNode().getPosition().x - edge.getStartNode().getPosition().x;
-        float bSide = edge.getEndNode().getPosition().y - edge.getStartNode().getPosition().y;
+        float aSide = nodes[edge.getEndNodeID() - 1].getPosition().x - nodes[edge.getStartNodeID() - 1].getPosition().x;
+        float bSide = nodes[edge.getEndNodeID() - 1].getPosition().y - nodes[edge.getStartNodeID() - 1].getPosition().y;
         float alpha = glm::atan(bSide / aSide);
 
         arrow1 = glm::rotate(arrow1, glm::radians(-135.0f + alpha), glm::vec3(0.0f, 0.0f, 1.0f));
