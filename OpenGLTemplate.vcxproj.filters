@@ -75,4 +75,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\adjMatrix\adjMatrix.txt" />
+  </ItemGroup>
 </Project>

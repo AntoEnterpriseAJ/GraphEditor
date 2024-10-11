@@ -13,5 +13,4 @@ public:
 private:
 	GraphNode m_nodeStart;
 	GraphNode m_nodeEnd;
-	bool m_oriented;
 };

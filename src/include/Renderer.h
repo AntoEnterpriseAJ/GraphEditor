@@ -10,7 +10,7 @@ public:
 	Renderer();
 
 	void render(const GraphNode& node, Shader& nodeShader, Shader& textShader);
-	void render(const Edge& edge, Shader& shader) const;
+	void render(const Edge& edge, Shader& shader, bool oriented) const;
 	
 private:
 	void initRenderData();

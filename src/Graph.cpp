@@ -3,9 +3,10 @@
 #include "GLFW/glfw3.h"
 #include <thread>
 #include <chrono>
+#include <fstream>
 
 Graph::Graph()
-	: m_nodes{}, m_renderer{}, m_oriented{ false }
+	: m_nodes{}, m_renderer{}, m_oriented{ true }
 {
 	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
 	ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
@@ -13,11 +14,12 @@ Graph::Graph()
 
 void Graph::render()
 {
+	logAdjencyMatrix("res/adjMatrix/adjMatrix.txt");
 	this->handleInput(); // TODO: move this
 
 	for (const auto& edge : m_edges)
 	{
-		m_renderer.render(edge, ResourceManager::getShader("circle"));
+		m_renderer.render(edge, ResourceManager::getShader("circle"), m_oriented);
 	}
 
 	for (const auto& node : m_nodes)
@@ -29,6 +31,43 @@ void Graph::render()
 void Graph::addNode(const GraphNode& node)
 {
 	m_nodes.push_back(node);
+}
+
+void Graph::logAdjencyMatrix(const std::string& fileName)
+{
+	std::ofstream file(fileName);
+	if (!file.is_open())
+	{
+		std::cout << "Can't open file at: " << fileName << "\n";
+		return;
+	}
+
+	std::vector<std::vector<int>> adjMatrix(m_nodes.size(), std::vector<int>(m_nodes.size(), 0));
+	for (const auto& edge : m_edges)
+	{
+		int startNodeID = edge.getStartNode().getID();
+		int endNodeID = edge.getEndNode().getID();
+
+		if (m_oriented)
+		{
+			adjMatrix[startNodeID - 1][endNodeID - 1] = 1;
+		}
+		else
+		{
+			adjMatrix[startNodeID - 1][endNodeID - 1] = 1;
+			adjMatrix[endNodeID - 1][startNodeID - 1] = 1;
+		}
+	}
+
+	file << m_nodes.size() << "\n";
+	for (const auto& row : adjMatrix)
+	{
+		for (const auto& elem : row)
+		{
+			file << elem << " ";
+		}
+		file << "\n";
+	}
 }
 
 static bool nodeSelected = false;

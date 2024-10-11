@@ -43,7 +43,7 @@ void Renderer::render(const GraphNode& node, Shader& nodeShader, Shader& textSha
 	glBindVertexArray(0);
 }
 
-void Renderer::render(const Edge& edge, Shader& shader) const
+void Renderer::render(const Edge& edge, Shader& shader, bool oriented) const
 {
     shader.bind();
 
@@ -83,49 +83,55 @@ void Renderer::render(const Edge& edge, Shader& shader) const
     glBindVertexArray(edgeVAO);
     glLineWidth(6.0f);
     glDrawArrays(GL_LINES, 0, 2);
+    glLineWidth(1.0f);
 
     glDeleteBuffers(1, &edgeVBO);
     glDeleteVertexArrays(1, &edgeVAO);
 
-    glm::vec3 arrow1 = glm::vec3{ dir, 0.0f };
-    glm::vec3 arrow2 = glm::vec3{ dir, 0.0f };
+    if (oriented)
+    {
 
-    float aSide = edge.getEndNode().getPosition().x - edge.getStartNode().getPosition().x;
-    float bSide = edge.getEndNode().getPosition().y - edge.getStartNode().getPosition().y;
-    float alpha = glm::atan(bSide / aSide);
+        glm::vec3 arrow1 = glm::vec3{ dir, 0.0f };
+        glm::vec3 arrow2 = glm::vec3{ dir, 0.0f };
 
-    arrow1 = glm::rotate(arrow1, glm::radians(-135.0f + alpha), glm::vec3(0.0f, 0.0f, 1.0f));
-    arrow2 = glm::rotate(arrow2, glm::radians(135.0f - alpha), glm::vec3(0.0f, 0.0f, 1.0f));
+        float aSide = edge.getEndNode().getPosition().x - edge.getStartNode().getPosition().x;
+        float bSide = edge.getEndNode().getPosition().y - edge.getStartNode().getPosition().y;
+        float alpha = glm::atan(bSide / aSide);
 
-    constexpr float arrowLength = 20.0f;
-    arrow1 *= arrowLength;
-    arrow2 *= arrowLength;
+        arrow1 = glm::rotate(arrow1, glm::radians(-135.0f + alpha), glm::vec3(0.0f, 0.0f, 1.0f));
+        arrow2 = glm::rotate(arrow2, glm::radians(135.0f - alpha), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    float arrowsVertices[] = {
-        edgeEnd.x, edgeEnd.y,
-        edgeEnd.x + arrow1.x, edgeEnd.y + arrow1.y,
-        edgeEnd.x, edgeEnd.y,
-        edgeEnd.x + arrow2.x, edgeEnd.y + arrow2.y
-    };
+        constexpr float arrowLength = 20.0f;
+        arrow1 *= arrowLength;
+        arrow2 *= arrowLength;
 
-    GLuint arrowsVAO, arrowsVBO;
-    glGenVertexArrays(1, &arrowsVAO);
-    glBindVertexArray(arrowsVAO);
+        float arrowsVertices[] = {
+            edgeEnd.x, edgeEnd.y,
+            edgeEnd.x + arrow1.x, edgeEnd.y + arrow1.y,
+            edgeEnd.x, edgeEnd.y,
+            edgeEnd.x + arrow2.x, edgeEnd.y + arrow2.y
+        };
 
-    glGenBuffers(1, &arrowsVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, arrowsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(arrowsVertices), arrowsVertices, GL_STATIC_DRAW);
+        GLuint arrowsVAO, arrowsVBO;
+        glGenVertexArrays(1, &arrowsVAO);
+        glBindVertexArray(arrowsVAO);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+        glGenBuffers(1, &arrowsVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, arrowsVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(arrowsVertices), arrowsVertices, GL_STATIC_DRAW);
 
-    glBindVertexArray(arrowsVAO);
-    glDrawArrays(GL_LINES, 0, 4);
-    glBindVertexArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
 
-    glDeleteBuffers(1, &arrowsVBO);
-    glDeleteVertexArrays(1, &arrowsVAO);
-    glLineWidth(1.0f);
+        glBindVertexArray(arrowsVAO);
+        glLineWidth(6.0f);
+        glDrawArrays(GL_LINES, 0, 4);
+        glLineWidth(1.0f);
+        glBindVertexArray(0);
+
+        glDeleteBuffers(1, &arrowsVBO);
+        glDeleteVertexArrays(1, &arrowsVAO);
+    }
 }
 
 void Renderer::initRenderData()

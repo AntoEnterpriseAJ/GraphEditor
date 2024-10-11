@@ -74,7 +74,8 @@ TextRenderer::~TextRenderer()
     }
 }
 
-void TextRenderer::RenderText(const Shader& shader, const std::string& text, float x, float y, float scale, glm::vec3 color)
+void TextRenderer::RenderText(const Shader& shader, const std::string& text
+                             , float x, float y, float scale, glm::vec3 color)
 {
     shader.bind();
     shader.setVec3("textColor", color);

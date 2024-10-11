@@ -3,6 +3,7 @@
 #include "Edge.h"
 #include "Renderer.h"
 #include "TextRenderer.h"
+#include <vector>
 
 class Graph
 {
@@ -12,6 +13,7 @@ public:
 	void render();
 
 	void addNode(const GraphNode& node);
+	void logAdjencyMatrix(const std::string& fileName);
 private:
 	void handleInput();
 	void tryAddEdge(const GraphNode& edgeStart, const GraphNode& edgeEnd);

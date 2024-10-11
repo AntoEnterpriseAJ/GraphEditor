@@ -158,6 +158,9 @@
     <ClInclude Include="src\include\TextRenderer.h" />
     <ClInclude Include="src\include\Texture2D.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\adjMatrix\adjMatrix.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
