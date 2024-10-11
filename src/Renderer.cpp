@@ -56,9 +56,17 @@ void Renderer::render(const Edge& edge, Shader& shader) const
     shader.setMat4("model", model);
     shader.setMat4("projection", projection);
 
+    glm::vec2 edgeStart{ edge.getStartNode().getPosition(), edge.getStartNode().getPosition().y};
+    glm::vec2 edgeEnd{ edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y };
+
+    glm::vec2 dir = glm::normalize(edgeEnd - edgeStart);
+
+    edgeStart += dir * edge.getStartNode().getSize();
+    edgeEnd   += -dir * edge.getStartNode().getSize();
+
     std::vector<float> edgeVertices = {
-        edge.getStartNode().getPosition().x, edge.getStartNode().getPosition().y,
-        edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y
+        edgeStart.x, edgeStart.y,
+        edgeEnd.x, edgeEnd.y,
     };
 
     GLuint edgeVAO, edgeVBO;
@@ -79,7 +87,6 @@ void Renderer::render(const Edge& edge, Shader& shader) const
     glDeleteBuffers(1, &edgeVBO);
     glDeleteVertexArrays(1, &edgeVAO);
 
-    glm::vec2 dir = glm::normalize(edge.getEndNode().getPosition() - edge.getStartNode().getPosition());
     glm::vec3 arrow1 = glm::vec3{ dir, 0.0f };
     glm::vec3 arrow2 = glm::vec3{ dir, 0.0f };
 
@@ -90,15 +97,15 @@ void Renderer::render(const Edge& edge, Shader& shader) const
     arrow1 = glm::rotate(arrow1, glm::radians(-135.0f + alpha), glm::vec3(0.0f, 0.0f, 1.0f));
     arrow2 = glm::rotate(arrow2, glm::radians(135.0f - alpha), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    constexpr float arrowLength = 50.0f;
+    constexpr float arrowLength = 20.0f;
     arrow1 *= arrowLength;
     arrow2 *= arrowLength;
 
     float arrowsVertices[] = {
-        edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y,
-        edge.getEndNode().getPosition().x + arrow1.x, edge.getEndNode().getPosition().y + arrow1.y,
-        edge.getEndNode().getPosition().x, edge.getEndNode().getPosition().y,
-        edge.getEndNode().getPosition().x + arrow2.x, edge.getEndNode().getPosition().y + arrow2.y
+        edgeEnd.x, edgeEnd.y,
+        edgeEnd.x + arrow1.x, edgeEnd.y + arrow1.y,
+        edgeEnd.x, edgeEnd.y,
+        edgeEnd.x + arrow2.x, edgeEnd.y + arrow2.y
     };
 
     GLuint arrowsVAO, arrowsVBO;
