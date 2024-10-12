@@ -288,7 +288,10 @@ void Graph::renderUI()
     (void)io;
 
     ImGui::Begin("Graph");
-    ImGui::Checkbox("Oriented", &m_oriented);
+    if (ImGui::Checkbox("Oriented", &m_oriented))
+    {
+        logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+    }
     if (ImGui::Button("clear"))
     {
         clear();
