@@ -8,20 +8,23 @@
 class Graph
 {
 public:
-	Graph();
+    Graph();
 
-	void render();
+    void render();
 
-	void addNode(const GraphNode& node);
-	void logAdjacencyMatrix(const std::string& fileName);
+    void addNode(const GraphNode& node);
+    void logAdjacencyMatrix(const std::string& fileName);
+    void clear();
+
 private:
-	void handleInput();
-	void tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd);
-	void checkNodeSelect(glm::vec2 position);
-	bool checkValidNodePosition(glm::vec2 position) const;
+    void handleInput();
+    void tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd);
+    void checkNodeSelect(glm::vec2 position);
+    bool checkValidNodePosition(glm::vec2 position) const;
+    void renderUI();
 private:
-	bool m_oriented;
-	std::vector<GraphNode> m_nodes;
-	std::vector<Edge> m_edges;
-	Renderer m_renderer;
+    bool m_oriented;
+    std::vector<GraphNode> m_nodes;
+    std::vector<Edge> m_edges;
+    Renderer m_renderer;
 };

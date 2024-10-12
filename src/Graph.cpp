@@ -1,4 +1,7 @@
 #include "Graph.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 #include "ResourceManager.h"
 #include "GLFW/glfw3.h"
 #include <thread>
@@ -11,7 +14,6 @@
 #else
     #define LOG(x) do {} while (0)
 #endif
-
 
 Graph::Graph()
 	: m_nodes{}, m_renderer{}, m_oriented{ true }
@@ -33,6 +35,8 @@ void Graph::render()
 	{
 		m_renderer.render(node, ResourceManager::getShader("circle"), ResourceManager::getShader("text"));
 	}
+
+    renderUI();
 }
 
 void Graph::addNode(const GraphNode& node)
@@ -79,6 +83,13 @@ void Graph::logAdjacencyMatrix(const std::string& fileName)
 	}
 }
 
+void Graph::clear()
+{
+    m_nodes.clear();
+    m_edges.clear();
+    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+}
+
 static bool nodeSelected = false;
 static bool pressed = false;
 static bool longClick = false;
@@ -88,6 +99,13 @@ static GraphNode* nodeToDrag = nullptr;
 
 void Graph::handleInput()
 {
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (io.WantCaptureMouse)
+    {
+        return;
+    }
+
 	GLFWwindow* window = glfwGetCurrentContext();
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -258,4 +276,26 @@ bool Graph::checkValidNodePosition(glm::vec2 position) const
 		}
 	}
 	return true;
+}
+
+void Graph::renderUI()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+
+    ImGui::Begin("Graph");
+    ImGui::Checkbox("Oriented", &m_oriented);
+    if (ImGui::Button("clear"))
+    {
+        clear();
+    }
+
+    ImGui::End();
+    
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
