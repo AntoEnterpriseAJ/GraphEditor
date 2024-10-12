@@ -209,12 +209,21 @@ void Graph::tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd)
 
 	for (const auto& edge : m_edges)
 	{
-		if (m_nodes[edge.getStartNodeID() - 1].getPosition() == edgeStart.getPosition()
+		if (m_oriented && m_nodes[edge.getStartNodeID() - 1].getPosition() == edgeStart.getPosition()
 			&& m_nodes[edge.getEndNodeID() - 1].getPosition() == edgeEnd.getPosition())
 		{
 			std::cout << "Edge already exists\n";
 			return;
 		}
+
+        if (!m_oriented && ((m_nodes[edge.getStartNodeID() - 1].getPosition() == edgeStart.getPosition()
+            && m_nodes[edge.getEndNodeID() - 1].getPosition() == edgeEnd.getPosition())
+            || (m_nodes[edge.getStartNodeID() - 1].getPosition() == edgeEnd.getPosition()
+                && m_nodes[edge.getEndNodeID() - 1].getPosition() == edgeStart.getPosition())))
+        {
+            std::cout << "Edge already exists\n";
+            return;
+        }
 	}
 
 	std::cout << "Edge added\n";
