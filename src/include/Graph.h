@@ -13,7 +13,7 @@ public:
 	void render();
 
 	void addNode(const GraphNode& node);
-	void logAdjencyMatrix(const std::string& fileName);
+	void logAdjacencyMatrix(const std::string& fileName);
 private:
 	void handleInput();
 	void tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd);

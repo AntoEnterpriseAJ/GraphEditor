@@ -14,7 +14,6 @@ Graph::Graph()
 
 void Graph::render()
 {
-	logAdjencyMatrix("res/adjMatrix/adjMatrix.txt");
 	this->handleInput(); // TODO: move this
 
 	for (const auto& edge : m_edges)
@@ -33,7 +32,7 @@ void Graph::addNode(const GraphNode& node)
 	m_nodes.push_back(node);
 }
 
-void Graph::logAdjencyMatrix(const std::string& fileName)
+void Graph::logAdjacencyMatrix(const std::string& fileName)
 {
 	std::ofstream file(fileName);
 	if (!file.is_open())
@@ -41,6 +40,8 @@ void Graph::logAdjencyMatrix(const std::string& fileName)
 		std::cout << "Can't open file at: " << fileName << "\n";
 		return;
 	}
+
+    std::cout << "Logging adjacency matrix\n";
 
 	std::vector<std::vector<int>> adjMatrix(m_nodes.size(), std::vector<int>(m_nodes.size(), 0));
 	for (const auto& edge : m_edges)
@@ -151,13 +152,13 @@ void Graph::handleInput()
 		{
 			std::cout << "short click\n";
 
-			std::cout << "mouse button 1 pressed\n";
 			double xPos, yPos;
 			glfwGetCursorPos(window, &xPos, &yPos);
 
 			if (checkValidNodePosition(glm::vec2{ xPos, yPos }))
 			{
 				this->addNode(GraphNode{ glm::vec2{xPos, yPos}, static_cast<unsigned int>(m_nodes.size() + 1) });
+                logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 				nodeSelected = false;
 			}
 			else
@@ -207,27 +208,26 @@ void Graph::tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd)
 		return;
 	}
 
-	for (const auto& edge : m_edges)
-	{
-		if (m_oriented && m_nodes[edge.getStartNodeID() - 1].getPosition() == edgeStart.getPosition()
-			&& m_nodes[edge.getEndNodeID() - 1].getPosition() == edgeEnd.getPosition())
-		{
-			std::cout << "Edge already exists\n";
-			return;
-		}
+    for (const auto& edge : m_edges)
+    {
+        const auto& existingEdgeStart = m_nodes[edge.getStartNodeID() - 1];
+        const auto& existingEdgeEnd = m_nodes[edge.getEndNodeID() - 1];
 
-        if (!m_oriented && ((m_nodes[edge.getStartNodeID() - 1].getPosition() == edgeStart.getPosition()
-            && m_nodes[edge.getEndNodeID() - 1].getPosition() == edgeEnd.getPosition())
-            || (m_nodes[edge.getStartNodeID() - 1].getPosition() == edgeEnd.getPosition()
-                && m_nodes[edge.getEndNodeID() - 1].getPosition() == edgeStart.getPosition())))
+        bool isSameDirection = (existingEdgeStart.getPosition() == edgeStart.getPosition()
+                                && existingEdgeEnd.getPosition() == edgeEnd.getPosition());
+        bool isOppositeDirection = (existingEdgeStart.getPosition() == edgeEnd.getPosition()
+                                    && existingEdgeEnd.getPosition() == edgeStart.getPosition());
+
+        if ((m_oriented && isSameDirection) || (!m_oriented && (isSameDirection || isOppositeDirection)))
         {
             std::cout << "Edge already exists\n";
             return;
         }
-	}
+    }
 
 	std::cout << "Edge added\n";
-	m_edges.push_back(Edge{ edgeStart.getID(), edgeEnd.getID() });
+    m_edges.push_back(Edge{ edgeStart.getID(), edgeEnd.getID() });
+    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 	nodeSelected = false;
 
 	for (const auto& edge : m_edges)
