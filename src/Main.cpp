@@ -38,6 +38,7 @@ int main(void)
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSwapInterval(0);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "WARNING::GLAD: Failed to initialize OpenGL" << std::endl;

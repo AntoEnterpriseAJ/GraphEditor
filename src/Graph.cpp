@@ -5,6 +5,14 @@
 #include <chrono>
 #include <fstream>
 
+#ifdef _DEBUG
+    #include <iostream>
+    #define LOG(x) std::cout << x << std::endl
+#else
+    #define LOG(x) do {} while (0)
+#endif
+
+
 Graph::Graph()
 	: m_nodes{}, m_renderer{}, m_oriented{ true }
 {
@@ -41,7 +49,7 @@ void Graph::logAdjacencyMatrix(const std::string& fileName)
 		return;
 	}
 
-    std::cout << "Logging adjacency matrix\n";
+    LOG("Logging adjacency matrix\n");
 
 	std::vector<std::vector<int>> adjMatrix(m_nodes.size(), std::vector<int>(m_nodes.size(), 0));
 	for (const auto& edge : m_edges)
@@ -99,7 +107,7 @@ void Graph::handleInput()
 		if (!longClick && pressDuration >= holdThreshold)
 		{
 			longClick = true;
-			std::cout << "long click\n";
+			LOG("long click\n");
 		}
 	}
 
@@ -122,7 +130,7 @@ void Graph::handleInput()
 
 		if (nodeToDrag)
 		{
-			std::cout << "node with id: " << nodeToDrag->getID() << " selected\n";
+			LOG("node with id: " << nodeToDrag->getID() << " selected\n");
 			nodeToDrag->setPosition(glm::vec2{ xPos, yPos });
 		}
 	}
@@ -150,7 +158,7 @@ void Graph::handleInput()
 
 		if (!longClick)
 		{
-			std::cout << "short click\n";
+			LOG("short click\n");
 
 			double xPos, yPos;
 			glfwGetCursorPos(window, &xPos, &yPos);
@@ -192,7 +200,7 @@ void Graph::checkNodeSelect(glm::vec2 position)
 			return;
 		}
 
-		std::cout << "node selected\n";
+		LOG("node selected\n");
 		nodeSelected = true;
 		edgeStart = &node;
 		return;
@@ -204,7 +212,7 @@ void Graph::tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd)
 {
 	if (edgeStart.getPosition() == edgeEnd.getPosition())
 	{
-		std::cout << "Cannot add edge to the same node\n";
+		LOG("Cannot add edge to the same node\n");
 		return;
 	}
 
@@ -220,23 +228,23 @@ void Graph::tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd)
 
         if ((m_oriented && isSameDirection) || (!m_oriented && (isSameDirection || isOppositeDirection)))
         {
-            std::cout << "Edge already exists\n";
+            LOG("Edge already exists\n");
             return;
         }
     }
 
-	std::cout << "Edge added\n";
+	LOG("Edge added\n");
     m_edges.push_back(Edge{ edgeStart.getID(), edgeEnd.getID() });
     logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 	nodeSelected = false;
 
 	for (const auto& edge : m_edges)
 	{
-		std::cout << "Current edges: \n";
-		std::cout << "Start: " << m_nodes[edge.getStartNodeID() - 1].getPosition().x
-			<< " " << m_nodes[edge.getStartNodeID() - 1].getPosition().y << "\n";
-		std::cout << "End: " << m_nodes[edge.getEndNodeID() - 1].getPosition().x
-			<< " " << m_nodes[edge.getEndNodeID() - 1].getPosition().y << "\n";
+		LOG("Current edges: \n"
+		    << "Start: " << m_nodes[edge.getStartNodeID() - 1].getPosition().x
+			<< " " << m_nodes[edge.getStartNodeID() - 1].getPosition().y << "\n"
+		    << "End: " << m_nodes[edge.getEndNodeID() - 1].getPosition().x
+			<< " " << m_nodes[edge.getEndNodeID() - 1].getPosition().y << "\n");
 	}
 }
 
