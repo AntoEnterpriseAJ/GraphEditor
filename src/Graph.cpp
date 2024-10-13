@@ -302,6 +302,8 @@ bool Graph::checkValidNodePosition(glm::vec2 position) const
 	return true;
 }
 
+static float my_color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+
 void Graph::renderUI()
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -320,6 +322,12 @@ void Graph::renderUI()
     {
         clear();
     }
+
+	if (ImGui::ColorEdit4("Node color", my_color))
+	{
+		ResourceManager::getShader("circle").bind();
+		ResourceManager::getShader("circle").setVec4("color", glm::vec4{my_color[0], my_color[1], my_color[2], 1.0f});
+	}
 
     ImGui::End();
     
