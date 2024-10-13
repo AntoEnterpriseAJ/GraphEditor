@@ -20,10 +20,31 @@ Graph::Graph()
 {
 	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
 	ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
+	ImGui_ImplOpenGL3_Init("#version 430");
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
+
+Graph::~Graph()
+{
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 }
 
 void Graph::render()
 {
+	glClearColor(0.2f, 0.2f, 0.5f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	this->handleInput(); // TODO: move this
 
 	for (const auto& edge : m_edges)
@@ -37,6 +58,9 @@ void Graph::render()
 	}
 
     renderUI();
+
+	glfwSwapBuffers(glfwGetCurrentContext());
+	glfwPollEvents();
 }
 
 void Graph::addNode(const GraphNode& node)

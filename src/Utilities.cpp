@@ -2,11 +2,6 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
 void APIENTRY glDebugOutput(GLenum source,
     GLenum type,
     unsigned int id,
@@ -52,4 +47,58 @@ void APIENTRY glDebugOutput(GLenum source,
     case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
     } std::cout << std::endl;
     std::cout << std::endl;
+}
+
+void loadOpenGL()
+{
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "WARNING::GLAD: Failed to initialize OpenGL" << std::endl;
+        return;
+    }
+    else std::cout << "Succesfully initialized OpenGL" << std::endl;
+
+    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+
+    int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+    {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(glDebugOutput, nullptr);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+        std::cout << "Succesfully initialized Debug Output" << std::endl;
+    }
+    else std::cout << "WARNING::DEBUG_OUTPUT: couldn't initialize" << std::endl;
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+GLFWwindow* createWindow(unsigned int width, unsigned int height)
+{
+    if (!glfwInit())
+        return nullptr;
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+    glfwWindowHint(GLFW_SAMPLES, 4);
+
+    GLFWwindow* window;
+    window = glfwCreateWindow(width, height, "GraphEditor", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        return nullptr;
+    }
+
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSwapInterval(0);
+
+    return window;
 }

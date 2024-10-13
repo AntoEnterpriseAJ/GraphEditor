@@ -9,6 +9,7 @@ class Graph
 {
 public:
     Graph();
+    ~Graph();
 
     void render();
 
