@@ -43,7 +43,7 @@ Graph::~Graph()
 
 void Graph::render()
 {
-	glClearColor(0.2f, 0.2f, 0.5f, 1.0f);
+	glClearColor(0.2f, 0.2f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	this->handleInput(); // TODO: move this
