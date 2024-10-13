@@ -99,4 +99,8 @@
   <ItemGroup>
     <Text Include="res\adjMatrix\adjMatrix.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\shaders\edge.frag" />
+    <None Include="res\shaders\edge.vert" />
+  </ItemGroup>
 </Project>
