@@ -156,6 +156,7 @@
     <ClCompile Include="src\Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\include\Action.h" />
     <ClInclude Include="src\include\Graph.h" />
     <ClInclude Include="src\include\Edge.h" />
     <ClInclude Include="src\include\GraphNode.h" />

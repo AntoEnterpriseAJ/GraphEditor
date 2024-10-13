@@ -3,6 +3,8 @@
 #include "Edge.h"
 #include "Renderer.h"
 #include "TextRenderer.h"
+#include "Action.h"
+#include <stack>
 #include <vector>
 
 class Graph
@@ -14,8 +16,10 @@ public:
     void render();
 
     void addNode(const GraphNode& node);
+	void addEdge(const GraphNode& edgeStart, const GraphNode& edgeEnd);
     void logAdjacencyMatrix(const std::string& fileName);
     void clear();
+    void undo();
 
 private:
     void handleInput();
@@ -28,4 +32,5 @@ private:
     std::vector<GraphNode> m_nodes;
     std::vector<Edge> m_edges;
     Renderer m_renderer;
+    std::stack<Action> m_actions;
 };

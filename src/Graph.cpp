@@ -9,14 +9,14 @@
 #include <fstream>
 
 #ifdef _DEBUG
-    #include <iostream>
-    #define LOG(x) std::cout << x << std::endl
+#include <iostream>
+#define LOG(x) std::cout << x << std::endl
 #else
-    #define LOG(x) do {} while (0)
+#define LOG(x) do {} while (0)
 #endif
 
 Graph::Graph()
-	: m_nodes{}, m_renderer{}, m_oriented{ true }
+	: m_nodes{}, m_renderer{}, m_oriented{ true }, m_actions{}
 {
 	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
 	ResourceManager::loadShader("res/shaders/edge.vert", "res/shaders/edge.frag", "edge");
@@ -58,7 +58,7 @@ void Graph::render()
 		m_renderer.render(node, ResourceManager::getShader("circle"), ResourceManager::getShader("text"));
 	}
 
-    renderUI();
+	renderUI();
 
 	glfwSwapBuffers(glfwGetCurrentContext());
 	glfwPollEvents();
@@ -67,6 +67,15 @@ void Graph::render()
 void Graph::addNode(const GraphNode& node)
 {
 	m_nodes.push_back(node);
+	m_actions.push(Action::newNode);
+}
+
+void Graph::addEdge(const GraphNode& edgeStart, const GraphNode& edgeEnd)
+{
+	LOG("Edge added\n");
+	m_edges.push_back(Edge{ edgeStart.getID(), edgeEnd.getID() });
+	m_actions.push(Action::newEdge);
+	logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 }
 
 void Graph::logAdjacencyMatrix(const std::string& fileName)
@@ -78,7 +87,7 @@ void Graph::logAdjacencyMatrix(const std::string& fileName)
 		return;
 	}
 
-    LOG("Logging adjacency matrix\n");
+	LOG("Logging adjacency matrix\n");
 
 	std::vector<std::vector<int>> adjMatrix(m_nodes.size(), std::vector<int>(m_nodes.size(), 0));
 	for (const auto& edge : m_edges)
@@ -110,9 +119,29 @@ void Graph::logAdjacencyMatrix(const std::string& fileName)
 
 void Graph::clear()
 {
-    m_nodes.clear();
-    m_edges.clear();
-    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+	m_nodes.clear();
+	m_edges.clear();
+	logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+}
+
+void Graph::undo()
+{
+	if (!m_actions.empty() && !m_edges.empty()  && m_actions.top() == Action::newEdge)
+	{
+		logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+		m_edges.pop_back();
+		m_actions.pop();
+	}
+	else if (!m_actions.empty() && !m_nodes.empty() && m_actions.top() == Action::newNode)
+	{
+		logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+		m_nodes.pop_back();
+		m_actions.pop();
+	}
+	else
+	{
+		LOG("Nothing to undo\n");
+	}
 }
 
 static bool nodeSelected = false;
@@ -124,12 +153,12 @@ static GraphNode* nodeToDrag = nullptr;
 
 void Graph::handleInput()
 {
-    ImGuiIO& io = ImGui::GetIO();
+	ImGuiIO& io = ImGui::GetIO();
 
-    if (io.WantCaptureMouse)
-    {
-        return;
-    }
+	if (io.WantCaptureMouse)
+	{
+		return;
+	}
 
 	GLFWwindow* window = glfwGetCurrentContext();
 
@@ -209,7 +238,7 @@ void Graph::handleInput()
 			if (checkValidNodePosition(glm::vec2{ xPos, yPos }))
 			{
 				this->addNode(GraphNode{ glm::vec2{xPos, yPos}, static_cast<unsigned int>(m_nodes.size() + 1) });
-                logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+				logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 				nodeSelected = false;
 			}
 			else
@@ -259,34 +288,32 @@ void Graph::tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd)
 		return;
 	}
 
-    for (const auto& edge : m_edges)
-    {
-        const auto& existingEdgeStart = m_nodes[edge.getStartNodeID() - 1];
-        const auto& existingEdgeEnd = m_nodes[edge.getEndNodeID() - 1];
+	for (const auto& edge : m_edges)
+	{
+		const auto& existingEdgeStart = m_nodes[edge.getStartNodeID() - 1];
+		const auto& existingEdgeEnd = m_nodes[edge.getEndNodeID() - 1];
 
-        bool isSameDirection = (existingEdgeStart.getPosition() == edgeStart.getPosition()
-                                && existingEdgeEnd.getPosition() == edgeEnd.getPosition());
-        bool isOppositeDirection = (existingEdgeStart.getPosition() == edgeEnd.getPosition()
-                                    && existingEdgeEnd.getPosition() == edgeStart.getPosition());
+		bool isSameDirection = (existingEdgeStart.getPosition() == edgeStart.getPosition()
+			&& existingEdgeEnd.getPosition() == edgeEnd.getPosition());
+		bool isOppositeDirection = (existingEdgeStart.getPosition() == edgeEnd.getPosition()
+			&& existingEdgeEnd.getPosition() == edgeStart.getPosition());
 
-        if ((m_oriented && isSameDirection) || (!m_oriented && (isSameDirection || isOppositeDirection)))
-        {
-            LOG("Edge already exists\n");
-            return;
-        }
-    }
+		if ((m_oriented && isSameDirection) || (!m_oriented && (isSameDirection || isOppositeDirection)))
+		{
+			LOG("Edge already exists\n");
+			return;
+		}
+	}
 
-	LOG("Edge added\n");
-    m_edges.push_back(Edge{ edgeStart.getID(), edgeEnd.getID() });
-    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+	addEdge(edgeStart, edgeEnd);
 	nodeSelected = false;
 
 	for (const auto& edge : m_edges)
 	{
 		LOG("Current edges: \n"
-		    << "Start: " << m_nodes[edge.getStartNodeID() - 1].getPosition().x
+			<< "Start: " << m_nodes[edge.getStartNodeID() - 1].getPosition().x
 			<< " " << m_nodes[edge.getStartNodeID() - 1].getPosition().y << "\n"
-		    << "End: " << m_nodes[edge.getEndNodeID() - 1].getPosition().x
+			<< "End: " << m_nodes[edge.getEndNodeID() - 1].getPosition().x
 			<< " " << m_nodes[edge.getEndNodeID() - 1].getPosition().y << "\n");
 	}
 }
@@ -309,26 +336,29 @@ static float textColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 void Graph::renderUI()
 {
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
-    ImGuiIO& io = ImGui::GetIO();
-    (void)io;
-
-    ImGui::Begin("Graph");
-    if (ImGui::Checkbox("Oriented", &m_oriented))
-    {
-        logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
-    }
-    if (ImGui::Button("clear"))
-    {
-        clear();
-    }
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
+	ImGui::Begin("Graph");
+	if (ImGui::Checkbox("Oriented", &m_oriented))
+	{
+		logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+	}
+	if (ImGui::Button("clear"))
+	{
+		clear();
+	}
+	if (ImGui::Button("undo"))
+	{
+		undo();
+	}
 	if (ImGui::ColorEdit4("Node color", nodeColor))
 	{
 		ResourceManager::getShader("circle").bind();
-		ResourceManager::getShader("circle").setVec4("color", glm::vec4{nodeColor[0], nodeColor[1], nodeColor[2], 1.0f});
+		ResourceManager::getShader("circle").setVec4("color", glm::vec4{ nodeColor[0], nodeColor[1], nodeColor[2], 1.0f });
 	}
 	if (ImGui::ColorEdit4("Edge color", edgeColor))
 	{
@@ -341,8 +371,8 @@ void Graph::renderUI()
 		ResourceManager::getShader("text").setVec3("textColor", glm::vec4{ textColor[0], textColor[1], textColor[2], 1.0f });
 	}
 
-    ImGui::End();
-    
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
