@@ -78,7 +78,6 @@ void TextRenderer::RenderText(const Shader& shader, const std::string& text
                              , float x, float y, float scale, glm::vec3 color)
 {
     shader.bind();
-    shader.setVec3("textColor", color);
     
     glm::mat4 orthographicProjection(float l, float r, float b, float t, float n, float f);
 	GLFWwindow* window = glfwGetCurrentContext();

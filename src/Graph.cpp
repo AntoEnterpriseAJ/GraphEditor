@@ -19,6 +19,7 @@ Graph::Graph()
 	: m_nodes{}, m_renderer{}, m_oriented{ true }
 {
 	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
+	ResourceManager::loadShader("res/shaders/edge.vert", "res/shaders/edge.frag", "edge");
 	ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
 
 	IMGUI_CHECKVERSION();
@@ -49,7 +50,7 @@ void Graph::render()
 
 	for (const auto& edge : m_edges)
 	{
-		m_renderer.render(edge, m_nodes, ResourceManager::getShader("circle"), m_oriented);
+		m_renderer.render(edge, m_nodes, ResourceManager::getShader("edge"), m_oriented);
 	}
 
 	for (const auto& node : m_nodes)
@@ -302,7 +303,9 @@ bool Graph::checkValidNodePosition(glm::vec2 position) const
 	return true;
 }
 
-static float my_color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+static float nodeColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+static float edgeColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+static float textColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 void Graph::renderUI()
 {
@@ -322,11 +325,20 @@ void Graph::renderUI()
     {
         clear();
     }
-
-	if (ImGui::ColorEdit4("Node color", my_color))
+	if (ImGui::ColorEdit4("Node color", nodeColor))
 	{
 		ResourceManager::getShader("circle").bind();
-		ResourceManager::getShader("circle").setVec4("color", glm::vec4{my_color[0], my_color[1], my_color[2], 1.0f});
+		ResourceManager::getShader("circle").setVec4("color", glm::vec4{nodeColor[0], nodeColor[1], nodeColor[2], 1.0f});
+	}
+	if (ImGui::ColorEdit4("Edge color", edgeColor))
+	{
+		ResourceManager::getShader("edge").bind();
+		ResourceManager::getShader("edge").setVec4("color", glm::vec4{ edgeColor[0], edgeColor[1], edgeColor[2], 1.0f });
+	}
+	if (ImGui::ColorEdit4("Text color", textColor))
+	{
+		ResourceManager::getShader("text").bind();
+		ResourceManager::getShader("text").setVec3("textColor", glm::vec4{ textColor[0], textColor[1], textColor[2], 1.0f });
 	}
 
     ImGui::End();
