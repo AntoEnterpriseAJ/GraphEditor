@@ -15,21 +15,21 @@ public:
 
     void render();
 
-    void addNode(const GraphNode& node);
-	void addEdge(const GraphNode& edgeStart, const GraphNode& edgeEnd);
+    void addNode(GraphNode* node);
+	void addEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
     void logAdjacencyMatrix(const std::string& fileName);
     void clear();
     void undo();
 
 private:
     void handleInput();
-    void tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd);
+    void tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
     void checkNodeSelect(glm::vec2 position);
     bool checkValidNodePosition(glm::vec2 position) const;
     void renderUI();
 private:
     bool m_oriented;
-    std::vector<GraphNode> m_nodes;
+    std::vector<GraphNode*> m_nodes;
     std::vector<Edge> m_edges;
     Renderer m_renderer;
     std::stack<Action> m_actions;

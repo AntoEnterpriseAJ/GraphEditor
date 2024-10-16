@@ -39,6 +39,11 @@ Graph::~Graph()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+
+	for (auto node : m_nodes)
+	{
+		delete node;
+	}
 }
 
 void Graph::render()
@@ -50,7 +55,7 @@ void Graph::render()
 
 	for (const auto& edge : m_edges)
 	{
-		m_renderer.render(edge, m_nodes, ResourceManager::getShader("edge"), m_oriented);
+		m_renderer.render(edge, ResourceManager::getShader("edge"), m_oriented);
 	}
 
 	for (const auto& node : m_nodes)
@@ -64,16 +69,16 @@ void Graph::render()
 	glfwPollEvents();
 }
 
-void Graph::addNode(const GraphNode& node)
+void Graph::addNode(GraphNode* node)
 {
 	m_nodes.push_back(node);
 	m_actions.push(Action::newNode);
 }
 
-void Graph::addEdge(const GraphNode& edgeStart, const GraphNode& edgeEnd)
+void Graph::addEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
 {
 	LOG("Edge added\n");
-	m_edges.push_back(Edge{ edgeStart.getID(), edgeEnd.getID() });
+	m_edges.push_back(Edge{ edgeStart, edgeEnd });
 	m_actions.push(Action::newEdge);
 	logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 }
@@ -92,8 +97,8 @@ void Graph::logAdjacencyMatrix(const std::string& fileName)
 	std::vector<std::vector<int>> adjMatrix(m_nodes.size(), std::vector<int>(m_nodes.size(), 0));
 	for (const auto& edge : m_edges)
 	{
-		int startNodeID = m_nodes[edge.getStartNodeID() - 1].getID();
-		int endNodeID = m_nodes[edge.getEndNodeID() - 1].getID();
+		int startNodeID = edge.getStartNode()->getID();
+		int endNodeID = edge.getEndNode()->getID();
 
 		if (m_oriented)
 		{
@@ -192,9 +197,9 @@ void Graph::handleInput()
 		{
 			for (auto& node : m_nodes)
 			{
-				if (glm::distance(node.getPosition(), glm::vec2{ xPos, yPos }) <= node.getSize().x)
+				if (glm::distance(node->getPosition(), glm::vec2{ xPos, yPos }) <= node->getSize().x)
 				{
-					nodeToDrag = &node;
+					nodeToDrag = node;
 					break;
 				}
 			}
@@ -213,15 +218,15 @@ void Graph::handleInput()
 		{
 			for (const auto& node : m_nodes)
 			{
-				if (&node == nodeToDrag)
+				if (node == nodeToDrag)
 				{
 					continue;
 				}
 
-				if (glm::distance(node.getPosition(), nodeToDrag->getPosition()) < node.getSize().x * 2.0f)
+				if (glm::distance(node->getPosition(), nodeToDrag->getPosition()) < node->getSize().x * 2.0f)
 				{
-					glm::vec2 offsetDir = glm::normalize(nodeToDrag->getPosition() - node.getPosition());
-					float offset = (node.getSize().x + nodeToDrag->getSize().x) - glm::distance(node.getPosition(), nodeToDrag->getPosition());
+					glm::vec2 offsetDir = glm::normalize(nodeToDrag->getPosition() - node->getPosition());
+					float offset = (node->getSize().x + nodeToDrag->getSize().x) - glm::distance(node->getPosition(), nodeToDrag->getPosition());
 
 					nodeToDrag->setPosition(nodeToDrag->getPosition() + offsetDir * offset);
 				}
@@ -237,7 +242,7 @@ void Graph::handleInput()
 
 			if (checkValidNodePosition(glm::vec2{ xPos, yPos }))
 			{
-				this->addNode(GraphNode{ glm::vec2{xPos, yPos}, static_cast<unsigned int>(m_nodes.size() + 1) });
+				this->addNode(new GraphNode{ glm::vec2{xPos, yPos}, static_cast<unsigned int>(m_nodes.size() + 1) });
 				logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 				nodeSelected = false;
 			}
@@ -259,14 +264,14 @@ void Graph::checkNodeSelect(glm::vec2 position)
 {
 	for (auto& node : m_nodes)
 	{
-		if (glm::distance(node.getPosition(), position) >= node.getSize().x)
+		if (glm::distance(node->getPosition(), position) >= node->getSize().x)
 		{
 			continue;
 		}
 
 		if (nodeSelected)
 		{
-			tryAddEdge(*edgeStart, node);
+			tryAddEdge(edgeStart, node);
 			nodeSelected = false;
 			edgeStart = nullptr;
 			return;
@@ -274,15 +279,15 @@ void Graph::checkNodeSelect(glm::vec2 position)
 
 		LOG("node selected\n");
 		nodeSelected = true;
-		edgeStart = &node;
+		edgeStart = node;
 		return;
 	}
 	nodeSelected = false;
 }
 
-void Graph::tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd)
+void Graph::tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
 {
-	if (edgeStart.getPosition() == edgeEnd.getPosition())
+	if (edgeStart->getPosition() == edgeEnd->getPosition())
 	{
 		LOG("Cannot add edge to the same node\n");
 		return;
@@ -290,13 +295,13 @@ void Graph::tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd)
 
 	for (const auto& edge : m_edges)
 	{
-		const auto& existingEdgeStart = m_nodes[edge.getStartNodeID() - 1];
-		const auto& existingEdgeEnd = m_nodes[edge.getEndNodeID() - 1];
+		const auto existingEdgeStart = edge.getStartNode();
+		const auto existingEdgeEnd = edge.getEndNode();;
 
-		bool isSameDirection = (existingEdgeStart.getPosition() == edgeStart.getPosition()
-			&& existingEdgeEnd.getPosition() == edgeEnd.getPosition());
-		bool isOppositeDirection = (existingEdgeStart.getPosition() == edgeEnd.getPosition()
-			&& existingEdgeEnd.getPosition() == edgeStart.getPosition());
+		bool isSameDirection = (existingEdgeStart->getPosition() == edgeStart->getPosition()
+			&& existingEdgeEnd->getPosition() == edgeEnd->getPosition());
+		bool isOppositeDirection = (existingEdgeStart->getPosition() == edgeEnd->getPosition()
+			&& existingEdgeEnd->getPosition() == edgeStart->getPosition());
 
 		if ((m_oriented && isSameDirection) || (!m_oriented && (isSameDirection || isOppositeDirection)))
 		{
@@ -311,10 +316,10 @@ void Graph::tryAddEdge(GraphNode& edgeStart, GraphNode& edgeEnd)
 	for (const auto& edge : m_edges)
 	{
 		LOG("Current edges: \n"
-			<< "Start: " << m_nodes[edge.getStartNodeID() - 1].getPosition().x
-			<< " " << m_nodes[edge.getStartNodeID() - 1].getPosition().y << "\n"
-			<< "End: " << m_nodes[edge.getEndNodeID() - 1].getPosition().x
-			<< " " << m_nodes[edge.getEndNodeID() - 1].getPosition().y << "\n");
+			<< "Start: " << edge.getStartNode()->getPosition().x
+			<< " " << edge.getStartNode()->getPosition().y << "\n"
+			<< "End: " << edge.getEndNode()->getPosition().x
+			<< " " << edge.getEndNode()->getPosition().y << "\n");
 	}
 }
 
@@ -322,7 +327,7 @@ bool Graph::checkValidNodePosition(glm::vec2 position) const
 {
 	for (const auto& node : m_nodes)
 	{
-		if (glm::distance(node.getPosition(), position) < node.getSize().x * 2.0f)
+		if (glm::distance(node->getPosition(), position) < node->getSize().x * 2.0f)
 		{
 			return false;
 		}

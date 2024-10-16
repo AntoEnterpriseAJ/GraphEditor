@@ -9,8 +9,8 @@ class Renderer
 public:
 	Renderer();
 
-	void render(const GraphNode& node, Shader& nodeShader, Shader& textShader);
-	void render(const Edge& edge, const std::vector<GraphNode>& nodes, Shader& shader, bool oriented) const;
+	void render(GraphNode* node, Shader& nodeShader, Shader& textShader);
+	void render(const Edge& edge, Shader& shader, bool oriented) const;
 	
 private:
 	void initRenderData();

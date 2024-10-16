@@ -1,15 +1,15 @@
 #include "Edge.h"
 
-Edge::Edge(unsigned int nodeStartID, unsigned int nodeEndID)
-	: m_nodeStartID{ nodeStartID }, m_nodeEndID{ nodeEndID }
+Edge::Edge(GraphNode* nodeStart, GraphNode* nodeEnd)
+	: m_nodeEnd{ nodeEnd }, m_nodeStart{ nodeStart }
 {}
 
-unsigned int Edge::getStartNodeID() const
+GraphNode* Edge::getStartNode() const
 {
-	return m_nodeStartID;
+	return m_nodeStart;
 }
 
-unsigned int Edge::getEndNodeID() const
+GraphNode* Edge::getEndNode() const
 {
-	return m_nodeEndID;
+	return m_nodeEnd;
 }
