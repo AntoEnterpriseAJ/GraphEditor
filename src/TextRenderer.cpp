@@ -77,6 +77,8 @@ TextRenderer::~TextRenderer()
 void TextRenderer::RenderText(const Shader& shader, const std::string& text
                              , float x, float y, float scale, glm::vec3 color)
 {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     shader.bind();
     
     glm::mat4 orthographicProjection(float l, float r, float b, float t, float n, float f);
