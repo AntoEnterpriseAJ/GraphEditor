@@ -143,6 +143,7 @@
     <ClCompile Include="dependencies\include\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="dependencies\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="dependencies\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Graph.cpp" />
     <ClCompile Include="src\Edge.cpp" />
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\include\Action.h" />
+    <ClInclude Include="src\include\Application.h" />
     <ClInclude Include="src\include\Graph.h" />
     <ClInclude Include="src\include\Edge.h" />
     <ClInclude Include="src\include\GraphNode.h" />
