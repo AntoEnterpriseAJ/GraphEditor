@@ -1,6 +1,6 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "Graph.h"
+#include "Application.h"
 
 void loadOpenGL();
 GLFWwindow* createWindow(unsigned int width, unsigned int height);
@@ -12,11 +12,11 @@ int main(void)
 {
     GLFWwindow* window = createWindow(initialWindowWidth, initialWindowHeight);
     loadOpenGL();
-
-    Graph graph;
+    
+    Application app;
     while (!glfwWindowShouldClose(window))
     {
-        graph.render();
+        app.render();
     }
 
     glfwTerminate();
