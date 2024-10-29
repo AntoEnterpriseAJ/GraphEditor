@@ -21,12 +21,14 @@ public:
     void clear();
     void undo();
 
+    void setOriented(bool oriented);
+	bool isOriented() const;
+
 private:
     void handleInput();
     void tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
     void checkNodeSelect(glm::vec2 position);
     bool checkValidNodePosition(glm::vec2 position) const;
-    void renderUI();
 private:
     bool m_oriented;
     std::vector<GraphNode*> m_nodes;
