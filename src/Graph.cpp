@@ -33,8 +33,6 @@ Graph::~Graph()
 
 void Graph::render()
 {
-	this->handleInput(); // TODO: move this
-
 	for (const auto& edge : m_edges)
 	{
 		m_renderer.render(edge, ResourceManager::getShader("edge"), m_oriented);
@@ -60,7 +58,7 @@ void Graph::addEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
 	logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 }
 
-void Graph::logAdjacencyMatrix(const std::string& fileName)
+void Graph::logAdjacencyMatrix(const std::string& fileName) const
 {
 	std::ofstream file(fileName);
 	if (!file.is_open())

@@ -14,18 +14,18 @@ public:
     ~Graph();
 
     void render();
+    void handleInput();
 
     void addNode(GraphNode* node);
 	void addEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
-    void logAdjacencyMatrix(const std::string& fileName);
+    void setOriented(bool oriented);
     void clear();
     void undo();
 
-    void setOriented(bool oriented);
+    void logAdjacencyMatrix(const std::string& fileName) const;
 	bool isOriented() const;
 
 private:
-    void handleInput();
     void tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
     void checkNodeSelect(glm::vec2 position);
     bool checkValidNodePosition(glm::vec2 position) const;
