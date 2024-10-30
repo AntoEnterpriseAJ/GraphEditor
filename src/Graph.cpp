@@ -31,7 +31,7 @@ Graph::~Graph()
 	}
 }
 
-void Graph::render()
+void Graph::render(Renderer::Primitive nodePrimitive)
 {
 	for (const auto& edge : m_edges)
 	{
@@ -40,7 +40,9 @@ void Graph::render()
 
 	for (const auto& node : m_nodes)
 	{
-		m_renderer.render(node, ResourceManager::getShader("circle"), ResourceManager::getShader("text"));
+		m_renderer.render(
+			node, ResourceManager::getShader("circle"), ResourceManager::getShader("text"), nodePrimitive
+		);
 	}
 }
 

@@ -13,7 +13,7 @@ public:
     Graph();
     ~Graph();
 
-    void render();
+    void render(Renderer::Primitive nodePrimitive = Renderer::Primitive::circle);
     void handleInput();
 
     void addNode(GraphNode* node);

@@ -9,10 +9,10 @@
 Renderer::Renderer()
 	: m_circleVAO{ 0 }, m_circleVBO{ 0 }, m_textRenderer{ "res/fonts/Astron.otf", 40 }
 {
-    initRenderData();
+    initPrimitivesData();
 }
 
-void Renderer::render(GraphNode* node, Shader& nodeShader, Shader& textShader)
+void Renderer::render(GraphNode* node, Shader& nodeShader, Shader& textShader, Primitive primitive)
 {
     nodeShader.bind();
 
@@ -28,8 +28,16 @@ void Renderer::render(GraphNode* node, Shader& nodeShader, Shader& textShader)
     nodeShader.setMat4("model", model);
     nodeShader.setMat4("projection", projection);
 
-	glBindVertexArray(m_circleVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 90);
+    if (primitive == Primitive::circle)
+    {
+        glBindVertexArray(m_circleVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 90);
+    }
+    else if (primitive == Primitive::quad)
+    {
+        glBindVertexArray(m_quadVAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    }
 
 	std::string nodeID = std::to_string(node->getID());
 	float textWidth = m_textRenderer.calculateTextWidth(nodeID);
@@ -134,7 +142,13 @@ void Renderer::render(const Edge& edge, Shader& shader, bool oriented) const
     }
 }
 
-void Renderer::initRenderData()
+void Renderer::initPrimitivesData()
+{
+    initCircleData();
+    initQuadData();
+}
+
+void Renderer::initCircleData()
 {
     std::vector<float> circleVertices;
     constexpr int circleVerticesCount = 30;
@@ -153,16 +167,47 @@ void Renderer::initRenderData()
         circleVertices.push_back(circleRadius * glm::sin(glm::radians(angle)));
     }
 
-	glGenVertexArrays(1, &m_circleVAO);
-	glBindVertexArray(m_circleVAO);
+    glGenVertexArrays(1, &m_circleVAO);
+    glBindVertexArray(m_circleVAO);
 
-	glGenBuffers(1, &m_circleVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_circleVBO);
-	glBufferData(GL_ARRAY_BUFFER, circleVertices.size() * sizeof(float), circleVertices.data(), GL_STATIC_DRAW);
+    glGenBuffers(1, &m_circleVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_circleVBO);
+    glBufferData(GL_ARRAY_BUFFER, circleVertices.size() * sizeof(float), circleVertices.data(), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void Renderer::initQuadData()
+{
+    float quadData[] = {
+        -1.0f, -1.0f,
+         1.0f, -1.0f,
+         1.0f,  1.0f,
+        -1.0f,  1.0f,
+    };
+
+    unsigned int indices[] = {
+        0, 1, 2, 2, 3, 0
+    };
+
+    glGenVertexArrays(1, &m_quadVAO);
+    glBindVertexArray(m_quadVAO);
+
+    glGenBuffers(1, &m_quadVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadData), quadData, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
 }

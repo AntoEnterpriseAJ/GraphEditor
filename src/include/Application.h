@@ -9,7 +9,7 @@ public:
 		GraphEditor,
 		BFS,
 	};
-
+		
 	Application();
 	~Application();
 

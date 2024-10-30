@@ -28,16 +28,15 @@ void Application::render()
 	glClearColor(0.2f, 0.2f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	m_graph.render();
 	if (m_state == State::GraphEditor)
 	{
+		m_graph.render();
 		m_graph.handleInput();
 	}
 	else if (m_state == State::BFS)
 	{
-		m_graph.clear();
-
-		//TODO: Implement BFS
+		//m_graph.clear();
+		m_graph.render(Renderer::Primitive::quad);
 	}
 
 	renderUI();
