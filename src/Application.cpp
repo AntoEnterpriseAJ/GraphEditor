@@ -29,6 +29,17 @@ void Application::render()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	m_graph.render();
+	if (m_state == State::GraphEditor)
+	{
+		m_graph.handleInput();
+	}
+	else if (m_state == State::BFS)
+	{
+		m_graph.clear();
+
+		//TODO: Implement BFS
+	}
+
 	renderUI();
 
 	glfwSwapBuffers(glfwGetCurrentContext());
@@ -45,8 +56,19 @@ void Application::renderUI()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	ImGuiIO& io = ImGui::GetIO();
-	(void)io;
+	renderToolbar();
+
+	if (m_state == State::GraphEditor)
+	{
+		renderGraphEditorUI();
+	}
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
+{
 	ImGui::Begin("Graph");
 	bool orientedCheckboxState = m_graph.isOriented();
 	if (ImGui::Checkbox("Oriented", &orientedCheckboxState))
@@ -86,7 +108,24 @@ void Application::renderUI()
 	}
 
 	ImGui::End();
+}
 
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+void Application::renderToolbar()
+{
+	ImGui::Begin("Toolbar", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+	ImGui::SetWindowPos(ImVec2(0, 0));
+	ImGui::SetWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, 30));
+
+	if (ImGui::Button("Graph Editor"))
+	{
+		m_state = State::GraphEditor;
+	}
+	ImGui::SameLine();
+
+	if (ImGui::Button("BFS"))
+	{
+		m_state = State::BFS;
+	}
+
+	ImGui::End();
 }

@@ -17,6 +17,8 @@ public:
 
 private:
 	void renderUI();
+	void renderGraphEditorUI();
+	void renderToolbar();
 private:
 	State m_state;
 	Graph m_graph;
