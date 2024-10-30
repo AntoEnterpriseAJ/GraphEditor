@@ -16,6 +16,9 @@ public:
     void render(Renderer::Primitive nodePrimitive = Renderer::Primitive::circle);
     void handleInput();
 
+    void readFromFile(const std::string& filePath);
+
+	void setLogStatus(bool logStatus);
     void addNode(GraphNode* node);
 	void addEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
     void setOriented(bool oriented);
@@ -31,6 +34,7 @@ private:
     bool checkValidNodePosition(glm::vec2 position) const;
 private:
     bool m_oriented;
+    bool m_logStatus;
     std::vector<GraphNode*> m_nodes;
     std::vector<Edge> m_edges;
     Renderer m_renderer;

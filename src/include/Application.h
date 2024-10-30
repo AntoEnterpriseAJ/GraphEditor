@@ -21,5 +21,6 @@ private:
 	void renderToolbar();
 private:
 	State m_state;
-	Graph m_graph;
+	Graph m_graphEditor;
+	Graph m_graphBFS;
 };

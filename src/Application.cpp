@@ -6,7 +6,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 Application::Application()
-	: m_state{ State::GraphEditor }, m_graph{}
+	: m_state{ State::GraphEditor }, m_graphEditor{}, m_graphBFS{}
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -14,6 +14,9 @@ Application::Application()
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
 	ImGui_ImplOpenGL3_Init("#version 430");
+
+	m_graphBFS.setLogStatus(false);
+	m_graphBFS.readFromFile("res/matrix/Matrix.txt");
 }
 
 Application::~Application()
@@ -30,13 +33,14 @@ void Application::render()
 
 	if (m_state == State::GraphEditor)
 	{
-		m_graph.render();
-		m_graph.handleInput();
+		m_graphEditor.render();
+		m_graphEditor.handleInput();
 	}
 	else if (m_state == State::BFS)
 	{
 		//m_graph.clear();
-		m_graph.render(Renderer::Primitive::quad);
+		//m_graphBFS.handleInput();
+		m_graphBFS.render(Renderer::Primitive::quad);
 	}
 
 	renderUI();
@@ -69,26 +73,26 @@ void Application::renderUI()
 void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
 {
 	ImGui::Begin("Graph");
-	bool orientedCheckboxState = m_graph.isOriented();
+	bool orientedCheckboxState = m_graphEditor.isOriented();
 	if (ImGui::Checkbox("Oriented", &orientedCheckboxState))
 	{
 		if (orientedCheckboxState)
 		{
-			m_graph.setOriented(true);
+			m_graphEditor.setOriented(true);
 		}
 		else
 		{
-			m_graph.setOriented(false);
+			m_graphEditor.setOriented(false);
 		}
-		m_graph.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+		m_graphEditor.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 	}
 	if (ImGui::Button("clear"))
 	{
-		m_graph.clear();
+		m_graphEditor.clear();
 	}
 	if (ImGui::Button("undo"))
 	{
-		m_graph.undo();
+		m_graphEditor.undo();
 	}
 	if (ImGui::ColorEdit4("Node color", nodeColor))
 	{

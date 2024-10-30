@@ -5,8 +5,7 @@
 #include "ResourceManager.h"
 #include "GLFW/glfw3.h"
 #include <thread>
-#include <chrono>
-#include <fstream>
+#include <sstream>
 
 #ifdef _DEBUG
 #include <iostream>
@@ -16,7 +15,7 @@
 #endif
 
 Graph::Graph()
-	: m_nodes{}, m_renderer{}, m_oriented{ true }, m_actions{}
+	: m_nodes{}, m_renderer{}, m_oriented{ true }, m_actions{}, m_logStatus{ true }
 {
 	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
 	ResourceManager::loadShader("res/shaders/edge.vert", "res/shaders/edge.frag", "edge");
@@ -46,6 +45,11 @@ void Graph::render(Renderer::Primitive nodePrimitive)
 	}
 }
 
+void Graph::setLogStatus(bool logStatus)
+{
+	m_logStatus = logStatus;
+}
+
 void Graph::addNode(GraphNode* node)
 {
 	m_nodes.push_back(node);
@@ -62,6 +66,11 @@ void Graph::addEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
 
 void Graph::logAdjacencyMatrix(const std::string& fileName) const
 {
+	if (!m_logStatus)
+	{
+		return;
+	}
+
 	std::ofstream file(fileName);
 	if (!file.is_open())
 	{
@@ -242,6 +251,76 @@ void Graph::handleInput()
 		nodeToDrag = nullptr;
 		pressed = false;
 		longClick = false;
+	}
+}
+
+void Graph::readFromFile(const std::string& filePath)
+{
+	std::ifstream file(filePath);
+	if (!file.is_open())
+	{
+		std::cout << "Can't open file at: " << filePath << "\n";
+		return;
+	}
+
+	clear();
+
+	std::stringstream ss;
+	ss << file.rdbuf();
+	file.close();
+
+	int rows = 0, cols = 0;
+	unsigned int value;
+	std::string line;
+
+	while (std::getline(ss, line))
+	{
+		rows++;
+
+		std::istringstream lineStream(line);
+		int currentCols = 0;
+		while (lineStream >> value)
+		{
+			currentCols++;
+			
+			this->addNode(new GraphNode{ {50.0f + rows * 100.0f, 50.0f + currentCols * 100.0f}, value });
+		}
+
+		cols = std::max(cols, currentCols);
+	}
+
+    for (int index = 0; index < rows * cols; ++index)  
+    {  
+       int nodeToTheLeft = index - 1;  
+       int nodeToTheRight = index + 1;  
+       int nodeBelow = index + cols;  
+       int nodeAbove = index - cols;  
+
+       std::cout << "currently at index " << index << ", right = " << nodeToTheRight << ", left = " << nodeToTheLeft << "\n";  
+
+	   if (nodeToTheRight < rows * cols && (nodeToTheRight % cols != 0))
+	   {
+		   this->addEdge(m_nodes[index], m_nodes[nodeToTheRight]);
+		   std::cout << "added the node to the right\n";
+	   }
+
+       if (nodeBelow < rows * cols)  
+       {  
+           this->addEdge(m_nodes[index], m_nodes[nodeBelow]);  
+           std::cout << "added the node below\n";  
+       }
+
+       if (nodeToTheLeft >= 0 && (index % cols != 0))  
+       {  
+           this->addEdge(m_nodes[index], m_nodes[nodeToTheLeft]);  
+           std::cout << "added the node to the left\n";  
+       }  
+
+       if (nodeAbove >= 0)  
+       {  
+           this->addEdge(m_nodes[index], m_nodes[nodeAbove]);  
+           std::cout << "added the node above\n";  
+       }  
 	}
 }
 
