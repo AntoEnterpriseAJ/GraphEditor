@@ -71,26 +71,26 @@ void Application::renderUI()
 void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
 {
     ImGui::Begin("Graph");
-    bool orientedCheckboxState = m_graphEditor.isOriented();
+    bool orientedCheckboxState = m_graphEditor.getGraphData().isOriented();
     if (ImGui::Checkbox("Oriented", &orientedCheckboxState))
     {
         if (orientedCheckboxState)
         {
-            m_graphEditor.setOriented(true);
+            m_graphEditor.getGraphData().setOriented(true);
         }
         else
         {
-            m_graphEditor.setOriented(false);
+            m_graphEditor.getGraphData().setOriented(false);
         }
-        m_graphEditor.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+        m_graphEditor.getGraphData().logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
     }
     if (ImGui::Button("clear"))
     {
-        m_graphEditor.clear();
+        m_graphEditor.getGraphData().clear();
     }
     if (ImGui::Button("undo"))
     {
-        m_graphEditor.undo();
+        m_graphEditor.getGraphData().undo();
     }
     if (ImGui::ColorEdit4("Node color", nodeColor))
     {

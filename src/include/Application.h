@@ -1,5 +1,5 @@
 #pragma once
-#include "Graph.h"
+#include "GraphEditor.h"
 
 class Application
 {
@@ -21,6 +21,6 @@ private:
     void renderToolbar();
 private:
     State m_state;
-    Graph m_graphEditor;
-    Graph m_graphBFS;
+    GraphEditor m_graphEditor;
+    GraphEditor m_graphBFS;
 };
