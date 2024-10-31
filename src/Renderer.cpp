@@ -39,14 +39,14 @@ void Renderer::render(GraphNode* node, Shader& nodeShader, Shader& textShader, P
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
 
-	std::string nodeID = std::to_string(node->getID());
+	std::string nodeID = std::to_string(node->getInternalID());
 	float textWidth = m_textRenderer.calculateTextWidth(nodeID);
 	float textHeight = m_textRenderer.calculateTextHeight(nodeID);
 
     float centeredX = node->getPosition().x - (textWidth / 2.0f);
     float centeredY = node->getPosition().y - (textHeight / 2.0f);
 
-	m_textRenderer.RenderText(textShader, std::to_string(node->getID()), centeredX, centeredY, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+	m_textRenderer.RenderText(textShader, node->getText(), centeredX, centeredY, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	glBindVertexArray(0);
 }

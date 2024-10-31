@@ -15,7 +15,7 @@
 #endif
 
 Graph::Graph()
-	: m_nodes{}, m_renderer{}, m_oriented{ true }, m_actions{}, m_logStatus{ true }
+	: m_nodes{}, m_renderer{}, m_oriented{ true }, m_actions{}
 {
 	ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
 	ResourceManager::loadShader("res/shaders/edge.vert", "res/shaders/edge.frag", "edge");
@@ -45,11 +45,6 @@ void Graph::render(Renderer::Primitive nodePrimitive)
 	}
 }
 
-void Graph::setLogStatus(bool logStatus)
-{
-	m_logStatus = logStatus;
-}
-
 void Graph::addNode(GraphNode* node)
 {
 	m_nodes.push_back(node);
@@ -66,11 +61,6 @@ void Graph::addEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
 
 void Graph::logAdjacencyMatrix(const std::string& fileName) const
 {
-	if (!m_logStatus)
-	{
-		return;
-	}
-
 	std::ofstream file(fileName);
 	if (!file.is_open())
 	{
@@ -83,8 +73,8 @@ void Graph::logAdjacencyMatrix(const std::string& fileName) const
 	std::vector<std::vector<int>> adjMatrix(m_nodes.size(), std::vector<int>(m_nodes.size(), 0));
 	for (const auto& edge : m_edges)
 	{
-		int startNodeID = edge.getStartNode()->getID();
-		int endNodeID = edge.getEndNode()->getID();
+		int startNodeID = edge.getStartNode()->getInternalID();
+		int endNodeID = edge.getEndNode()->getInternalID();
 
 		if (m_oriented)
 		{
@@ -203,7 +193,7 @@ void Graph::handleInput()
 
 		if (nodeToDrag)
 		{
-			LOG("node with id: " << nodeToDrag->getID() << " selected\n");
+			LOG("node with id: " << nodeToDrag->getInternalID() << " selected\n");
 			nodeToDrag->setPosition(glm::vec2{ xPos, yPos });
 		}
 	}
@@ -238,7 +228,10 @@ void Graph::handleInput()
 
 			if (checkValidNodePosition(glm::vec2{ xPos, yPos }))
 			{
-				this->addNode(new GraphNode{ glm::vec2{xPos, yPos}, static_cast<unsigned int>(m_nodes.size() + 1) });
+				this->addNode(new GraphNode{
+					glm::vec2{xPos, yPos},
+					std::to_string(m_nodes.size() + 1),
+					static_cast<unsigned int>(m_nodes.size() + 1)});
 				logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 				nodeSelected = false;
 			}
@@ -254,7 +247,7 @@ void Graph::handleInput()
 	}
 }
 
-void Graph::readFromFile(const std::string& filePath)
+void Graph::readMazeFromFile(const std::string& filePath)
 {
 	std::ifstream file(filePath);
 	if (!file.is_open())
@@ -283,7 +276,10 @@ void Graph::readFromFile(const std::string& filePath)
 		{
 			currentCols++;
 			
-			this->addNode(new GraphNode{ {50.0f + rows * 100.0f, 50.0f + currentCols * 100.0f}, value });
+			this->addNode(new GraphNode{
+				{50.0f + rows * 100.0f, 50.0f + currentCols * 100.0f},
+				std::to_string(value),
+				static_cast<unsigned int>(m_nodes.size() + 1)});
 		}
 
 		cols = std::max(cols, currentCols);
@@ -296,30 +292,30 @@ void Graph::readFromFile(const std::string& filePath)
        int nodeBelow = index + cols;  
        int nodeAbove = index - cols;  
 
-       std::cout << "currently at index " << index << ", right = " << nodeToTheRight << ", left = " << nodeToTheLeft << "\n";  
+       //std::cout << "currently at index " << index << ", right = " << nodeToTheRight << ", left = " << nodeToTheLeft << "\n";  
 
 	   if (nodeToTheRight < rows * cols && (nodeToTheRight % cols != 0))
 	   {
 		   this->addEdge(m_nodes[index], m_nodes[nodeToTheRight]);
-		   std::cout << "added the node to the right\n";
+		   //std::cout << "added the node to the right\n";
 	   }
 
        if (nodeBelow < rows * cols)  
        {  
            this->addEdge(m_nodes[index], m_nodes[nodeBelow]);  
-           std::cout << "added the node below\n";  
+           //std::cout << "added the node below\n";
        }
 
        if (nodeToTheLeft >= 0 && (index % cols != 0))  
        {  
            this->addEdge(m_nodes[index], m_nodes[nodeToTheLeft]);  
-           std::cout << "added the node to the left\n";  
+           //std::cout << "added the node to the left\n";  
        }  
 
        if (nodeAbove >= 0)  
        {  
            this->addEdge(m_nodes[index], m_nodes[nodeAbove]);  
-           std::cout << "added the node above\n";  
+           //std::cout << "added the node above\n";  
        }  
 	}
 }
