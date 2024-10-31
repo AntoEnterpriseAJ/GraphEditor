@@ -145,8 +145,9 @@
     <ClCompile Include="dependencies\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\glad.c" />
-    <ClCompile Include="src\Graph.cpp" />
+    <ClCompile Include="src\GraphEditor.cpp" />
     <ClCompile Include="src\Edge.cpp" />
+    <ClCompile Include="src\GraphData.cpp" />
     <ClCompile Include="src\GraphNode.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -159,8 +160,9 @@
   <ItemGroup>
     <ClInclude Include="src\include\Action.h" />
     <ClInclude Include="src\include\Application.h" />
-    <ClInclude Include="src\include\Graph.h" />
+    <ClInclude Include="src\include\GraphEditor.h" />
     <ClInclude Include="src\include\Edge.h" />
+    <ClInclude Include="src\include\GraphData.h" />
     <ClInclude Include="src\include\GraphNode.h" />
     <ClInclude Include="src\include\Renderer.h" />
     <ClInclude Include="src\include\ResourceManager.h" />
