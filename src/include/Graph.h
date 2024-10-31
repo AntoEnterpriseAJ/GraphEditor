@@ -32,6 +32,8 @@ private:
     void checkNodeSelect(glm::vec2 position);
     bool checkValidNodePosition(glm::vec2 position) const;
 private:
+	static constexpr float kNodeRadius = 30.0f; //TODO: make it adjustable
+private:
     bool m_oriented;
     std::vector<GraphNode*> m_nodes;
     std::vector<Edge> m_edges;

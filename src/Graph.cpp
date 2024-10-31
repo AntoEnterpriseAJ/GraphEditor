@@ -231,7 +231,8 @@ void Graph::handleInput()
 				this->addNode(new GraphNode{
 					glm::vec2{xPos, yPos},
 					std::to_string(m_nodes.size() + 1),
-					static_cast<unsigned int>(m_nodes.size() + 1)});
+					static_cast<unsigned int>(m_nodes.size() + 1),
+					glm::vec2{kNodeRadius, kNodeRadius} });
 				logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
 				nodeSelected = false;
 			}
@@ -275,24 +276,24 @@ void Graph::readMazeFromFile(const std::string& filePath)
 		while (lineStream >> value)
 		{
 			currentCols++;
-			
+
 			this->addNode(new GraphNode{
-				{50.0f + rows * 100.0f, 50.0f + currentCols * 100.0f},
+				{50.0f + rows * 2 * Graph::kNodeRadius, 50.0f + currentCols * 2 * Graph::kNodeRadius},
 				std::to_string(value),
-				static_cast<unsigned int>(m_nodes.size() + 1)});
+				static_cast<unsigned int>(m_nodes.size() + 1) });
 		}
 
 		cols = std::max(cols, currentCols);
 	}
 
-    for (int index = 0; index < rows * cols; ++index)  
-    {  
-       int nodeToTheLeft = index - 1;  
-       int nodeToTheRight = index + 1;  
-       int nodeBelow = index + cols;  
-       int nodeAbove = index - cols;  
+	for (int index = 0; index < rows * cols; ++index)  
+	{  
+	   int nodeToTheLeft = index - 1;  
+	   int nodeToTheRight = index + 1;  
+	   int nodeBelow = index + cols;  
+	   int nodeAbove = index - cols;  
 
-       //std::cout << "currently at index " << index << ", right = " << nodeToTheRight << ", left = " << nodeToTheLeft << "\n";  
+	   //std::cout << "currently at index " << index << ", right = " << nodeToTheRight << ", left = " << nodeToTheLeft << "\n";  
 
 	   if (nodeToTheRight < rows * cols && (nodeToTheRight % cols != 0))
 	   {
@@ -300,23 +301,23 @@ void Graph::readMazeFromFile(const std::string& filePath)
 		   //std::cout << "added the node to the right\n";
 	   }
 
-       if (nodeBelow < rows * cols)  
-       {  
-           this->addEdge(m_nodes[index], m_nodes[nodeBelow]);  
-           //std::cout << "added the node below\n";
-       }
+	   if (nodeBelow < rows * cols)  
+	   {  
+		   this->addEdge(m_nodes[index], m_nodes[nodeBelow]);  
+		   //std::cout << "added the node below\n";
+	   }
 
-       if (nodeToTheLeft >= 0 && (index % cols != 0))  
-       {  
-           this->addEdge(m_nodes[index], m_nodes[nodeToTheLeft]);  
-           //std::cout << "added the node to the left\n";  
-       }  
+	   if (nodeToTheLeft >= 0 && (index % cols != 0))  
+	   {  
+		   this->addEdge(m_nodes[index], m_nodes[nodeToTheLeft]);  
+		   //std::cout << "added the node to the left\n";  
+	   }  
 
-       if (nodeAbove >= 0)  
-       {  
-           this->addEdge(m_nodes[index], m_nodes[nodeAbove]);  
-           //std::cout << "added the node above\n";  
-       }  
+	   if (nodeAbove >= 0)  
+	   {  
+		   this->addEdge(m_nodes[index], m_nodes[nodeAbove]);  
+		   //std::cout << "added the node above\n";  
+	   }  
 	}
 }
 
