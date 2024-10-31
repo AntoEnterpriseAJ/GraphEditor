@@ -15,8 +15,7 @@ Application::Application()
 	ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
 	ImGui_ImplOpenGL3_Init("#version 430");
 
-	m_graphBFS.setLogStatus(false);
-	m_graphBFS.readFromFile("res/matrix/Matrix.txt");
+	m_graphBFS.readMazeFromFile("res/matrix/Matrix.txt");
 }
 
 Application::~Application()
@@ -38,8 +37,7 @@ void Application::render()
 	}
 	else if (m_state == State::BFS)
 	{
-		//m_graph.clear();
-		//m_graphBFS.handleInput();
+		m_graphBFS.handleInput();
 		m_graphBFS.render(Renderer::Primitive::quad);
 	}
 
