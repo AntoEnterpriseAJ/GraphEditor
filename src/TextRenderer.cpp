@@ -82,9 +82,9 @@ void TextRenderer::RenderText(const Shader& shader, const std::string& text
     shader.bind();
     
     glm::mat4 orthographicProjection(float l, float r, float b, float t, float n, float f);
-	GLFWwindow* window = glfwGetCurrentContext();
-	int width, height;
-	glfwGetFramebufferSize(window, &width, &height);
+    GLFWwindow* window = glfwGetCurrentContext();
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
 
     shader.setMat4("projection", projection);
@@ -117,24 +117,24 @@ void TextRenderer::RenderText(const Shader& shader, const std::string& text
 
 float TextRenderer::calculateTextWidth(const std::string& text, float scale) const
 {
-	float width = 0.0f;
-	for (const auto& character : text)
-	{
-		CharacterData charData = m_characterData.at(character);
-		width += (charData.advance >> 6) * scale;
-	}
-	return width;
+    float width = 0.0f;
+    for (const auto& character : text)
+    {
+        CharacterData charData = m_characterData.at(character);
+        width += (charData.advance >> 6) * scale;
+    }
+    return width;
 }
 
 float TextRenderer::calculateTextHeight(const std::string& text, float scale) const
 {
-	float height = 0.0f;
-	for (const auto& character : text)
-	{
-		CharacterData charData = m_characterData.at(character);
-		height = std::max(height, charData.size.y * scale);
-	}
-	return height;
+    float height = 0.0f;
+    for (const auto& character : text)
+    {
+        CharacterData charData = m_characterData.at(character);
+        height = std::max(height, charData.size.y * scale);
+    }
+    return height;
 }
 
 void TextRenderer::initRenderData()

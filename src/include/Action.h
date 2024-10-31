@@ -2,7 +2,7 @@
 
 enum class Action
 {
-	newEdge,
-	newNode,
-	none,
+    newEdge,
+    newNode,
+    none,
 };

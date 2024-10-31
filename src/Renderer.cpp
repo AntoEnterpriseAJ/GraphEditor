@@ -7,7 +7,7 @@
 #include "glm/gtx/rotate_vector.hpp"
 
 Renderer::Renderer()
-	: m_circleVAO{ 0 }, m_circleVBO{ 0 }, m_textRenderer{ "res/fonts/Astron.otf", 40 }
+    : m_circleVAO{ 0 }, m_circleVBO{ 0 }, m_textRenderer{ "res/fonts/Astron.otf", 40 }
 {
     initPrimitivesData();
 }
@@ -18,7 +18,7 @@ void Renderer::render(GraphNode* node, Shader& nodeShader, Shader& textShader, P
 
     glm::mat4 model(1.0f);
     model = glm::translate(model, glm::vec3(node->getPosition(), 1.0f));
-	model = glm::scale(model, glm::vec3(node->getSize(), 1.0f));
+    model = glm::scale(model, glm::vec3(node->getSize(), 1.0f));
 
     int width, height;
     glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
@@ -39,16 +39,16 @@ void Renderer::render(GraphNode* node, Shader& nodeShader, Shader& textShader, P
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
 
-	std::string nodeID = std::to_string(node->getInternalID());
-	float textWidth = m_textRenderer.calculateTextWidth(nodeID);
-	float textHeight = m_textRenderer.calculateTextHeight(nodeID);
+    std::string nodeID = std::to_string(node->getInternalID());
+    float textWidth = m_textRenderer.calculateTextWidth(nodeID);
+    float textHeight = m_textRenderer.calculateTextHeight(nodeID);
 
     float centeredX = node->getPosition().x - (textWidth / 2.0f);
     float centeredY = node->getPosition().y - (textHeight / 2.0f);
 
-	m_textRenderer.RenderText(textShader, node->getText(), centeredX, centeredY, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+    m_textRenderer.RenderText(textShader, node->getText(), centeredX, centeredY, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 
-	glBindVertexArray(0);
+    glBindVertexArray(0);
 }
 
 void Renderer::render(const Edge& edge, Shader& shader, bool oriented) const

@@ -22,8 +22,8 @@ public:
 
     void RenderText(const Shader& shader, const std::string& text, float x, float y, float scale = 1.0f, glm::vec3 color = {1.0f, 1.0f, 1.0f});
 
-	float calculateTextWidth(const std::string& text, float scale = 1.0f) const;
-	float calculateTextHeight(const std::string& text, float scale = 1.0f) const;
+    float calculateTextWidth(const std::string& text, float scale = 1.0f) const;
+    float calculateTextHeight(const std::string& text, float scale = 1.0f) const;
 
 private:
     void initRenderData();

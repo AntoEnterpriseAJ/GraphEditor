@@ -4,23 +4,23 @@
 class Application
 {
 public:
-	enum class State
-	{
-		GraphEditor,
-		BFS,
-	};
-		
-	Application();
-	~Application();
+    enum class State
+    {
+        GraphEditor,
+        BFS,
+    };
+        
+    Application();
+    ~Application();
 
-	void render();
+    void render();
 
 private:
-	void renderUI();
-	void renderGraphEditorUI();
-	void renderToolbar();
+    void renderUI();
+    void renderGraphEditorUI();
+    void renderToolbar();
 private:
-	State m_state;
-	Graph m_graphEditor;
-	Graph m_graphBFS;
+    State m_state;
+    Graph m_graphEditor;
+    Graph m_graphBFS;
 };

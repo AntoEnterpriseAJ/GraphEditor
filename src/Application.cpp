@@ -6,45 +6,45 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 Application::Application()
-	: m_state{ State::GraphEditor }, m_graphEditor{}, m_graphBFS{}
+    : m_state{ State::GraphEditor }, m_graphEditor{}, m_graphBFS{}
 {
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
-	ImGui_ImplOpenGL3_Init("#version 430");
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
+    ImGui_ImplOpenGL3_Init("#version 430");
 
-	m_graphBFS.readMazeFromFile("res/matrix/Matrix.txt");
+    m_graphBFS.readMazeFromFile("res/matrix/Matrix.txt");
 }
 
 Application::~Application()
 {
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void Application::render()
 {
-	glClearColor(0.2f, 0.2f, 0.4f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.2f, 0.2f, 0.4f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-	if (m_state == State::GraphEditor)
-	{
-		m_graphEditor.render();
-		m_graphEditor.handleInput();
-	}
-	else if (m_state == State::BFS)
-	{
-		m_graphBFS.handleInput();
-		m_graphBFS.render(Renderer::Primitive::quad);
-	}
+    if (m_state == State::GraphEditor)
+    {
+        m_graphEditor.render();
+        m_graphEditor.handleInput();
+    }
+    else if (m_state == State::BFS)
+    {
+        m_graphBFS.handleInput();
+        m_graphBFS.render(Renderer::Primitive::quad);
+    }
 
-	renderUI();
+    renderUI();
 
-	glfwSwapBuffers(glfwGetCurrentContext());
-	glfwPollEvents();
+    glfwSwapBuffers(glfwGetCurrentContext());
+    glfwPollEvents();
 }
 
 static float nodeColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
@@ -53,80 +53,80 @@ static float textColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 void Application::renderUI()
 {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 
-	renderToolbar();
+    renderToolbar();
 
-	if (m_state == State::GraphEditor)
-	{
-		renderGraphEditorUI();
-	}
+    if (m_state == State::GraphEditor)
+    {
+        renderGraphEditorUI();
+    }
 
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
 {
-	ImGui::Begin("Graph");
-	bool orientedCheckboxState = m_graphEditor.isOriented();
-	if (ImGui::Checkbox("Oriented", &orientedCheckboxState))
-	{
-		if (orientedCheckboxState)
-		{
-			m_graphEditor.setOriented(true);
-		}
-		else
-		{
-			m_graphEditor.setOriented(false);
-		}
-		m_graphEditor.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
-	}
-	if (ImGui::Button("clear"))
-	{
-		m_graphEditor.clear();
-	}
-	if (ImGui::Button("undo"))
-	{
-		m_graphEditor.undo();
-	}
-	if (ImGui::ColorEdit4("Node color", nodeColor))
-	{
-		ResourceManager::getShader("circle").bind();
-		ResourceManager::getShader("circle").setVec4("color", glm::vec4{ nodeColor[0], nodeColor[1], nodeColor[2], 1.0f });
-	}
-	if (ImGui::ColorEdit4("Edge color", edgeColor))
-	{
-		ResourceManager::getShader("edge").bind();
-		ResourceManager::getShader("edge").setVec4("color", glm::vec4{ edgeColor[0], edgeColor[1], edgeColor[2], 1.0f });
-	}
-	if (ImGui::ColorEdit4("Text color", textColor))
-	{
-		ResourceManager::getShader("text").bind();
-		ResourceManager::getShader("text").setVec3("textColor", glm::vec4{ textColor[0], textColor[1], textColor[2], 1.0f });
-	}
+    ImGui::Begin("Graph");
+    bool orientedCheckboxState = m_graphEditor.isOriented();
+    if (ImGui::Checkbox("Oriented", &orientedCheckboxState))
+    {
+        if (orientedCheckboxState)
+        {
+            m_graphEditor.setOriented(true);
+        }
+        else
+        {
+            m_graphEditor.setOriented(false);
+        }
+        m_graphEditor.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+    }
+    if (ImGui::Button("clear"))
+    {
+        m_graphEditor.clear();
+    }
+    if (ImGui::Button("undo"))
+    {
+        m_graphEditor.undo();
+    }
+    if (ImGui::ColorEdit4("Node color", nodeColor))
+    {
+        ResourceManager::getShader("circle").bind();
+        ResourceManager::getShader("circle").setVec4("color", glm::vec4{ nodeColor[0], nodeColor[1], nodeColor[2], 1.0f });
+    }
+    if (ImGui::ColorEdit4("Edge color", edgeColor))
+    {
+        ResourceManager::getShader("edge").bind();
+        ResourceManager::getShader("edge").setVec4("color", glm::vec4{ edgeColor[0], edgeColor[1], edgeColor[2], 1.0f });
+    }
+    if (ImGui::ColorEdit4("Text color", textColor))
+    {
+        ResourceManager::getShader("text").bind();
+        ResourceManager::getShader("text").setVec3("textColor", glm::vec4{ textColor[0], textColor[1], textColor[2], 1.0f });
+    }
 
-	ImGui::End();
+    ImGui::End();
 }
 
 void Application::renderToolbar()
 {
-	ImGui::Begin("Toolbar", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
-	ImGui::SetWindowPos(ImVec2(0, 0));
-	ImGui::SetWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, 30));
+    ImGui::Begin("Toolbar", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+    ImGui::SetWindowPos(ImVec2(0, 0));
+    ImGui::SetWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, 30));
 
-	if (ImGui::Button("Graph Editor"))
-	{
-		m_state = State::GraphEditor;
-	}
-	ImGui::SameLine();
+    if (ImGui::Button("Graph Editor"))
+    {
+        m_state = State::GraphEditor;
+    }
+    ImGui::SameLine();
 
-	if (ImGui::Button("BFS"))
-	{
-		m_state = State::BFS;
-	}
+    if (ImGui::Button("BFS"))
+    {
+        m_state = State::BFS;
+    }
 
-	ImGui::End();
+    ImGui::End();
 }

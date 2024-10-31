@@ -19,20 +19,20 @@ public:
     void readMazeFromFile(const std::string& filePath);
 
     void addNode(GraphNode* node);
-	void addEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
+    void addEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
     void setOriented(bool oriented);
     void clear();
     void undo();
 
     void logAdjacencyMatrix(const std::string& fileName) const;
-	bool isOriented() const;
+    bool isOriented() const;
 
 private:
     void tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
     void checkNodeSelect(glm::vec2 position);
     bool checkValidNodePosition(glm::vec2 position) const;
 private:
-	static constexpr float kNodeRadius = 30.0f; //TODO: make it adjustable
+    static constexpr float kNodeRadius = 30.0f; //TODO: make it adjustable
 private:
     bool m_oriented;
     std::vector<GraphNode*> m_nodes;

@@ -5,12 +5,12 @@
 class Edge
 {
 public:
-	Edge(GraphNode* nodeStart, GraphNode* nodeEnd);
+    Edge(GraphNode* nodeStart, GraphNode* nodeEnd);
 
-	GraphNode* getStartNode() const;
-	GraphNode* getEndNode() const;
+    GraphNode* getStartNode() const;
+    GraphNode* getEndNode() const;
 
 private:
-	GraphNode* m_nodeStart;
-	GraphNode* m_nodeEnd;
+    GraphNode* m_nodeStart;
+    GraphNode* m_nodeEnd;
 };
