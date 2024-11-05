@@ -6,7 +6,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 Application::Application()
-    : m_state{ State::GraphEditor }, m_graphEditor{}, m_graphBFS{}
+    : m_state{ State::GraphEditor }, m_graphEditor{}, m_Maze{}
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -15,7 +15,7 @@ Application::Application()
     ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
     ImGui_ImplOpenGL3_Init("#version 430");
 
-    m_graphBFS.readMazeFromFile("res/matrix/Matrix.txt");
+    m_Maze.readMazeFromFile("res/Matrix/Matrix.txt");
 }
 
 Application::~Application()
@@ -37,8 +37,7 @@ void Application::render()
     }
     else if (m_state == State::BFS)
     {
-        m_graphBFS.handleInput();
-        m_graphBFS.render(Renderer::Primitive::quad);
+        m_Maze.render(Renderer::Primitive::quad);
     }
 
     renderUI();

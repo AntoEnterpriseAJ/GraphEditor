@@ -1,5 +1,6 @@
 #pragma once
 #include "GraphEditor.h"
+#include "MazeEditor.h"
 
 class Application
 {
@@ -22,5 +23,5 @@ private:
 private:
     State m_state;
     GraphEditor m_graphEditor;
-    GraphEditor m_graphBFS;
+    MazeEditor m_Maze;
 };
