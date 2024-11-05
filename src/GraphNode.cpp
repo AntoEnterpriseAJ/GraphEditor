@@ -3,10 +3,10 @@
 #include "GLFW/glfw3.h"
 
 GraphNode::GraphNode()
-    : m_position{ 0.0f, 0.0f }, m_text{}, m_internalID{0}, m_color{ 1.0f, 0.0f, 0.0f }, m_size{ 30.0f, 30.0f }
+    : m_position{ 0.0f, 0.0f }, m_text{}, m_internalID{0}, m_color{ 1.0f, 0.0f, 0.0f, 1.0f}, m_size{ 30.0f, 30.0f }
 {}
 
-GraphNode::GraphNode(glm::vec2 position, const std::string& text, unsigned int ID, glm::vec2 size, glm::vec3 color)
+GraphNode::GraphNode(glm::vec2 position, const std::string& text, unsigned int ID, glm::vec2 size, glm::vec4 color)
     : m_position{ position }, m_text{text}, m_internalID{ID}, m_color{color}, m_size{size}
 {}
 
@@ -28,6 +28,11 @@ glm::vec2 GraphNode::getPosition() const
 glm::vec2 GraphNode::getSize() const
 {
     return m_size;
+}
+
+glm::vec4 GraphNode::getColor() const
+{
+    return m_color;
 }
 
 unsigned int GraphNode::getInternalID() const
