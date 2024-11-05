@@ -10,11 +10,10 @@ class GraphEditor
 public:
     GraphEditor();
 
-    void render(Renderer::Primitive nodePrimitive = Renderer::Primitive::circle);
+    void render();
     void handleInput();
 
     GraphData& getGraphData();
-    void readMazeFromFile(const std::string& filePath);
 
 private:
     void tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd);

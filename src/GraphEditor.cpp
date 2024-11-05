@@ -20,9 +20,10 @@ GraphEditor::GraphEditor()
     ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
     ResourceManager::loadShader("res/shaders/edge.vert", "res/shaders/edge.frag", "edge");
     ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
+    m_graphData.setLogAdjacency(true);
 }
 
-void GraphEditor::render(Renderer::Primitive nodePrimitive)
+void GraphEditor::render()
 {
     for (const auto& edge : m_graphData.getEdges())
     {
@@ -31,9 +32,8 @@ void GraphEditor::render(Renderer::Primitive nodePrimitive)
 
     for (const auto& node : m_graphData.getNodes())
     {
-        m_renderer.render(
-            node, ResourceManager::getShader("circle"), ResourceManager::getShader("text"), nodePrimitive
-        );
+        m_renderer.render(node, ResourceManager::getShader("circle"));
+        m_renderer.renderText(node->getText(), ResourceManager::getShader("text"), node->getPosition());
     }
 }
 
@@ -134,7 +134,7 @@ void GraphEditor::handleInput()
                     glm::vec2{xPos, yPos},
                     std::to_string(m_graphData.getNodes().size() + 1),
                     static_cast<unsigned int>(m_graphData.getNodes().size() + 1),
-                    glm::vec2{kNodeRadius, kNodeRadius} });
+                    glm::vec2{GraphEditor::kNodeRadius, GraphEditor::kNodeRadius} });
                 m_graphData.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
                 nodeSelected = false;
             }
@@ -153,81 +153,6 @@ void GraphEditor::handleInput()
 GraphData& GraphEditor::getGraphData()
 {
     return m_graphData;
-}
-
-void GraphEditor::readMazeFromFile(const std::string& filePath)
-{
-    std::ifstream file(filePath);
-    if (!file.is_open())
-    {
-        std::cout << "Can't open file at: " << filePath << "\n";
-        return;
-    }
-
-    m_graphData.clear();
-
-    std::stringstream ss;
-    ss << file.rdbuf();
-    file.close();
-
-    int rows = 0, cols = 0;
-    unsigned int value;
-    std::string line;
-
-    while (std::getline(ss, line))
-    {
-        rows++;
-
-        std::istringstream lineStream(line);
-        int currentCols = 0;
-        while (lineStream >> value)
-        {
-            currentCols++;
-
-            m_graphData.addNode(new GraphNode{
-                {50.0f + rows * 2 * GraphEditor::kNodeRadius, 50.0f + currentCols * 2 * GraphEditor::kNodeRadius},
-                std::to_string(value),
-                static_cast<unsigned int>(m_graphData.getNodes().size() + 1)});
-        }
-
-        cols = std::max(cols, currentCols);
-    }
-
-    for (int index = 0; index < rows * cols; ++index)  
-    {  
-       int nodeToTheLeft = index - 1;  
-       int nodeToTheRight = index + 1;  
-       int nodeBelow = index + cols;  
-       int nodeAbove = index - cols;  
-
-       //std::cout << "currently at index " << index << ", right = " << nodeToTheRight << ", left = " << nodeToTheLeft << "\n";  
-
-       auto m_nodes = m_graphData.getNodes(); // TODO: CHANGE THIS
-
-       if (nodeToTheRight < rows * cols && (nodeToTheRight % cols != 0))
-       {
-           m_graphData.addEdge(m_nodes[index], m_nodes[nodeToTheRight]);
-           //std::cout << "added the node to the right\n";
-       }
-
-       if (nodeBelow < rows * cols)  
-       {  
-           m_graphData.addEdge(m_nodes[index], m_nodes[nodeBelow]);  
-           //std::cout << "added the node below\n";
-       }
-
-       if (nodeToTheLeft >= 0 && (index % cols != 0))  
-       {  
-           m_graphData.addEdge(m_nodes[index], m_nodes[nodeToTheLeft]);  
-           //std::cout << "added the node to the left\n";  
-       }  
-
-       if (nodeAbove >= 0)  
-       {  
-           m_graphData.addEdge(m_nodes[index], m_nodes[nodeAbove]);  
-           //std::cout << "added the node above\n";  
-       }  
-    }
 }
 
 static GraphNode* edgeStart;
