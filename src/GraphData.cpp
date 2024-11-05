@@ -8,7 +8,7 @@
 #endif
 
 GraphData::GraphData()
-   : m_oriented{ true }, m_actions{}, m_nodes{}, m_edges{}
+    : m_oriented{ true }, m_logAdjacency{ false }, m_actions {}, m_nodes{}, m_edges{}
 {}
 
 GraphData::~GraphData()
@@ -37,6 +37,11 @@ void GraphData::addEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
 void GraphData::setOriented(bool oriented)
 {
    m_oriented = oriented;
+}
+
+void GraphData::setLogAdjacency(bool log)
+{
+    m_logAdjacency = log;
 }
 
 void GraphData::clear()
@@ -83,6 +88,8 @@ std::vector<Edge>& GraphData::getEdges()
 
 void GraphData::logAdjacencyMatrix(const std::string& fileName) const
 {
+   if (!m_logAdjacency) return;
+
    std::ofstream file(fileName);
    if (!file.is_open())
    {

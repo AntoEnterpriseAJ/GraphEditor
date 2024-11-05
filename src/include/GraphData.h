@@ -13,6 +13,7 @@ public:
     void addNode(GraphNode* node);
     void addEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
     void setOriented(bool oriented);
+    void setLogAdjacency(bool log);
     void clear();
     void undo();
 
@@ -22,6 +23,7 @@ public:
     void logAdjacencyMatrix(const std::string& fileName) const;
     bool isOriented() const;
 private:
+    bool m_logAdjacency;
     bool m_oriented;
     std::stack<Action> m_actions;
     std::vector<GraphNode*> m_nodes;
