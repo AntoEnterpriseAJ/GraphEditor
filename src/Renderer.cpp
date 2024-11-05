@@ -12,7 +12,26 @@ Renderer::Renderer()
     initPrimitivesData();
 }
 
-void Renderer::render(GraphNode* node, Shader& nodeShader, Shader& textShader, Primitive primitive)
+void Renderer::renderText(const std::string& text, const Shader& textShader, glm::vec2 pos
+                         , bool centered, float scale, glm::vec3 color)
+{
+    if (centered)
+    {
+        float textWidth = m_textRenderer.calculateTextWidth(text);
+        float textHeight = m_textRenderer.calculateTextHeight(text);
+
+        float centeredX = pos.x - textWidth / 2.0f;
+        float centeredY = pos.y - textHeight / 2.0f;
+            
+        m_textRenderer.RenderText(textShader, text, centeredX, centeredY, scale, color);
+    }
+    else
+    {
+        m_textRenderer.RenderText(textShader, text, pos.x, pos.y, scale, color);
+    }
+}
+
+void Renderer::render(GraphNode* node, Shader& nodeShader, Primitive primitive)
 {
     nodeShader.bind();
 
@@ -37,16 +56,8 @@ void Renderer::render(GraphNode* node, Shader& nodeShader, Shader& textShader, P
     {
         glBindVertexArray(m_quadVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        nodeShader.setVec4("color", node->getColor());
     }
-
-    std::string nodeID = std::to_string(node->getInternalID());
-    float textWidth = m_textRenderer.calculateTextWidth(nodeID);
-    float textHeight = m_textRenderer.calculateTextHeight(nodeID);
-
-    float centeredX = node->getPosition().x - (textWidth / 2.0f);
-    float centeredY = node->getPosition().y - (textHeight / 2.0f);
-
-    m_textRenderer.RenderText(textShader, node->getText(), centeredX, centeredY, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 
     glBindVertexArray(0);
 }
