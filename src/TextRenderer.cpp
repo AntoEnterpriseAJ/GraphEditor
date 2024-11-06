@@ -88,6 +88,7 @@ void TextRenderer::RenderText(const Shader& shader, const std::string& text
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
 
     shader.setMat4("projection", projection);
+    shader.setVec3("textColor", color);
 
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(m_quadVAO);
