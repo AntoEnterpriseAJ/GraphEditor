@@ -8,7 +8,7 @@
 #endif
 
 GraphData::GraphData()
-    : m_oriented{ true }, m_logAdjacency{ false }, m_actions {}, m_nodes{}, m_edges{}
+    : m_oriented{ true }, m_logAdjacencyMatrix{ false }, m_actions {}, m_nodes{}, m_edges{}
 {}
 
 GraphData::~GraphData()
@@ -23,6 +23,7 @@ void GraphData::addNode(GraphNode* node)
 {
    m_nodes.push_back(node);
    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+   updateAdjacencyList();
    m_actions.push(Action::newNode);
 }
 
@@ -31,6 +32,7 @@ void GraphData::addEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
    LOG("Edge added");
    m_edges.emplace_back(edgeStart, edgeEnd);
    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+   updateAdjacencyList();
    m_actions.push(Action::newEdge);
 }
 
@@ -41,7 +43,7 @@ void GraphData::setOriented(bool oriented)
 
 void GraphData::setLogAdjacency(bool log)
 {
-    m_logAdjacency = log;
+    m_logAdjacencyMatrix = log;
 }
 
 void GraphData::clear()
@@ -53,6 +55,7 @@ void GraphData::clear()
    m_nodes.clear();
    m_edges.clear();
    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+   updateAdjacencyList();
 }
 
 void GraphData::undo()
@@ -62,6 +65,7 @@ void GraphData::undo()
        m_edges.pop_back();
        m_actions.pop();
        logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+       updateAdjacencyList();
    }
    else if (!m_actions.empty() && !m_nodes.empty() && m_actions.top() == Action::newNode)
    {
@@ -69,6 +73,7 @@ void GraphData::undo()
        m_nodes.pop_back();
        m_actions.pop();
        logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+       updateAdjacencyList();
    }
    else
    {
@@ -88,7 +93,7 @@ std::vector<Edge>& GraphData::getEdges()
 
 void GraphData::logAdjacencyMatrix(const std::string& fileName) const
 {
-   if (!m_logAdjacency) return;
+   if (!m_logAdjacencyMatrix) return;
 
    std::ofstream file(fileName);
    if (!file.is_open())
@@ -130,4 +135,34 @@ void GraphData::logAdjacencyMatrix(const std::string& fileName) const
 bool GraphData::isOriented() const
 {
    return m_oriented;
+}
+
+void GraphData::updateAdjacencyList()
+{
+    m_adjacencyList.clear();
+    m_adjacencyList.resize(m_nodes.size());
+
+    for (const auto& edge : m_edges)
+    {
+        int startNodeID = edge.getStartNode()->getInternalID();
+        int endNodeID = edge.getEndNode()->getInternalID();
+
+        m_adjacencyList[startNodeID - 1].push_back(endNodeID);
+        if (!m_oriented)
+        {
+            m_adjacencyList[endNodeID - 1].push_back(startNodeID);
+        }
+    }
+
+    LOG("Adjacency list updated");
+
+    for (size_t i = 0; i < m_adjacencyList.size(); ++i)
+    {
+        std::cout << i + 1 << ": ";
+        for (const auto& elem : m_adjacencyList[i])
+        {
+            std::cout << elem << " ";
+        }
+        std::cout << "\n";
+    }
 }
