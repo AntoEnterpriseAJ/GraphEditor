@@ -17,8 +17,8 @@ void Renderer::renderText(const std::string& text, const Shader& textShader, glm
 {
     if (centered)
     {
-        float textWidth = m_textRenderer.calculateTextWidth(text);
-        float textHeight = m_textRenderer.calculateTextHeight(text);
+        float textWidth = m_textRenderer.calculateTextWidth(text, scale);
+        float textHeight = m_textRenderer.calculateTextHeight(text, scale);
 
         float centeredX = pos.x - textWidth / 2.0f;
         float centeredY = pos.y - textHeight / 2.0f;
@@ -54,9 +54,9 @@ void Renderer::render(GraphNode* node, Shader& nodeShader, Primitive primitive)
     }
     else if (primitive == Primitive::quad)
     {
+        nodeShader.setVec4("color", node->getColor());
         glBindVertexArray(m_quadVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        nodeShader.setVec4("color", node->getColor());
     }
 
     glBindVertexArray(0);
