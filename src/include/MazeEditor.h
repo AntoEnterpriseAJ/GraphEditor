@@ -18,7 +18,6 @@ public:
 
     void render(Renderer::Primitive nodePrimitive = Renderer::Primitive::circle);
 
-    GraphData& getGraphData(); // maybe unused TODO: check it out
     void loadFromFile(const std::string& filePath);
 
     void solveMaze();
@@ -27,7 +26,7 @@ public:
 private:
     void addEdgesBetweenCells(int rows, int cols);
     glm::vec4 getCellColor(int value);
-    static constexpr float kNodeSize = 30.0f; //TODO: make it adjustable
+    static constexpr float kNodeSize = 30.0f;
 private:
     std::vector<int> m_entrances;
     std::vector<int> m_exits;

@@ -22,11 +22,6 @@ void MazeEditor::render(Renderer::Primitive nodePrimitive)
     }
 }
 
-GraphData& MazeEditor::getGraphData()
-{
-    return m_graphData;
-}
-
 void MazeEditor::loadFromFile(const std::string& filePath)
 {
     std::ifstream file(filePath);
