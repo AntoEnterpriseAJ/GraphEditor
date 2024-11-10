@@ -17,9 +17,6 @@
 GraphEditor::GraphEditor()
     : m_graphData{}, m_renderer {}
 {
-    ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
-    ResourceManager::loadShader("res/shaders/edge.vert", "res/shaders/edge.frag", "edge");
-    ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
     m_graphData.setLogAdjacency(true);
 }
 
@@ -33,7 +30,7 @@ void GraphEditor::render()
     for (const auto& node : m_graphData.getNodes())
     {
         m_renderer.render(node, ResourceManager::getShader("circle"));
-        m_renderer.renderText(node->getText(), ResourceManager::getShader("text"), node->getPosition());
+        m_renderer.renderText(node->getLabel(), ResourceManager::getShader("text"), node->getPosition());
     }
 }
 
@@ -54,11 +51,6 @@ void GraphEditor::handleInput()
     }
 
     GLFWwindow* window = glfwGetCurrentContext();
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    }
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
@@ -132,8 +124,8 @@ void GraphEditor::handleInput()
             {
                 m_graphData.addNode(new GraphNode{
                     glm::vec2{xPos, yPos},
-                    std::to_string(m_graphData.getNodes().size() + 1),
-                    static_cast<unsigned int>(m_graphData.getNodes().size() + 1),
+                    std::to_string(m_graphData.getNodes().size()),
+                    static_cast<unsigned int>(m_graphData.getNodes().size()),
                     glm::vec2{GraphEditor::kNodeRadius, GraphEditor::kNodeRadius} });
                 m_graphData.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
                 nodeSelected = false;
