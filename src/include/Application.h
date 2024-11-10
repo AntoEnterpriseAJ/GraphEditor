@@ -8,7 +8,7 @@ public:
     enum class State
     {
         GraphEditor,
-        BFS,
+        Maze,
     };
         
     Application();
@@ -19,6 +19,7 @@ public:
 private:
     void renderUI();
     void renderGraphEditorUI();
+    void renderMazeUI();
     void renderToolbar();
 private:
     State m_state;

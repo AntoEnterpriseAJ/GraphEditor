@@ -15,7 +15,12 @@ Application::Application()
     ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
     ImGui_ImplOpenGL3_Init("#version 430");
 
-    m_Maze.readMazeFromFile("res/Matrix/Matrix.txt");
+    ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
+    ResourceManager::loadShader("res/shaders/edge.vert", "res/shaders/edge.frag", "edge");
+    ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
+    ResourceManager::loadShader("res/shaders/quad.vert", "res/shaders/quad.frag", "quad");
+
+    m_Maze.loadFromFile("res/maze/maze.txt");
 }
 
 Application::~Application()
@@ -35,7 +40,7 @@ void Application::render()
         m_graphEditor.render();
         m_graphEditor.handleInput();
     }
-    else if (m_state == State::BFS)
+    else if (m_state == State::Maze)
     {
         m_Maze.render(Renderer::Primitive::quad);
     }
@@ -52,6 +57,13 @@ static float textColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 void Application::renderUI()
 {
+    GLFWwindow* window = glfwGetCurrentContext();
+
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -61,6 +73,10 @@ void Application::renderUI()
     if (m_state == State::GraphEditor)
     {
         renderGraphEditorUI();
+    }
+    else if (m_state == State::Maze)
+    {
+        renderMazeUI();
     }
 
     ImGui::Render();
@@ -81,7 +97,6 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
         {
             m_graphEditor.getGraphData().setOriented(false);
         }
-        m_graphEditor.getGraphData().logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
     }
     if (ImGui::Button("clear"))
     {
@@ -110,6 +125,25 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
     ImGui::End();
 }
 
+static std::string mazeFilePath{"res/maze/maze.txt"};
+
+void Application::renderMazeUI()
+{
+    ImGui::Begin("Maze");
+
+    ImGui::InputText("Maze file path", mazeFilePath.data(), ImGuiInputTextFlags_EnterReturnsTrue);
+    if (ImGui::Button("load maze"))
+    {
+        m_Maze.loadFromFile(mazeFilePath);
+    }
+    if (ImGui::Button("solve"))
+    {
+        m_Maze.solveMaze();
+    }
+
+    ImGui::End();
+}
+
 void Application::renderToolbar()
 {
     ImGui::Begin("Toolbar", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
@@ -122,9 +156,9 @@ void Application::renderToolbar()
     }
     ImGui::SameLine();
 
-    if (ImGui::Button("BFS"))
+    if (ImGui::Button("Maze"))
     {
-        m_state = State::BFS;
+        m_state = State::Maze;
     }
 
     ImGui::End();
