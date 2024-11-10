@@ -39,6 +39,8 @@ void GraphData::addEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
 void GraphData::setOriented(bool oriented)
 {
    m_oriented = oriented;
+   logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+   updateAdjacencyList();
 }
 
 void GraphData::setLogAdjacency(bool log)
@@ -81,12 +83,12 @@ void GraphData::undo()
    }
 }
 
-std::vector<GraphNode*>& GraphData::getNodes()
+const std::vector<std::unordered_set<int>>& GraphData::getAdjacencyList() const
 {
-   return m_nodes;
+    return m_adjacencyList;
 }
 
-std::vector<Edge>& GraphData::getEdges()
+const std::vector<Edge>& GraphData::getEdges() const
 {
    return m_edges;
 }
@@ -112,12 +114,12 @@ void GraphData::logAdjacencyMatrix(const std::string& fileName) const
 
        if (m_oriented)
        {
-           adjMatrix[startNodeID - 1][endNodeID - 1] = 1;
+           adjMatrix[startNodeID][endNodeID] = 1;
        }
        else
        {
-           adjMatrix[startNodeID - 1][endNodeID - 1] = 1;
-           adjMatrix[endNodeID - 1][startNodeID - 1] = 1;
+           adjMatrix[startNodeID][endNodeID] = 1;
+           adjMatrix[endNodeID][startNodeID] = 1;
        }
    }
 
@@ -130,6 +132,26 @@ void GraphData::logAdjacencyMatrix(const std::string& fileName) const
        }
        file << "\n";
    }
+}
+
+std::vector<GraphNode*>& GraphData::getNodes()
+{
+    return m_nodes;
+}
+
+GraphNode* GraphData::getNode(unsigned int nodeID)
+{
+    if (nodeID < m_nodes.size())
+    {
+        return m_nodes[nodeID];
+    }
+
+    throw std::invalid_argument("the node doesn't exist");
+}
+
+int GraphData::getSize() const
+{
+    return m_nodes.size();
 }
 
 bool GraphData::isOriented() const
@@ -147,22 +169,10 @@ void GraphData::updateAdjacencyList()
         int startNodeID = edge.getStartNode()->getInternalID();
         int endNodeID = edge.getEndNode()->getInternalID();
 
-        m_adjacencyList[startNodeID - 1].push_back(endNodeID);
+        m_adjacencyList[startNodeID].insert(endNodeID);
         if (!m_oriented)
         {
-            m_adjacencyList[endNodeID - 1].push_back(startNodeID);
+            m_adjacencyList[endNodeID].insert(startNodeID);
         }
-    }
-
-    LOG("Adjacency list updated");
-
-    for (size_t i = 0; i < m_adjacencyList.size(); ++i)
-    {
-        std::cout << i + 1 << ": ";
-        for (const auto& elem : m_adjacencyList[i])
-        {
-            std::cout << elem << " ";
-        }
-        std::cout << "\n";
     }
 }
