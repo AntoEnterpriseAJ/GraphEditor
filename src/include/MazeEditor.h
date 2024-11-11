@@ -21,15 +21,16 @@ public:
     void loadFromFile(const std::string& filePath);
 
     void solveMaze();
-    std::vector<int> BFS(unsigned int startNodeID);
+    std::vector<int> BFS(unsigned int entrance);
 
 private:
     void addEdgesBetweenCells(int rows, int cols);
     glm::vec4 getCellColor(int value);
+private:
     static constexpr float kNodeSize = 30.0f;
 private:
-    std::vector<int> m_entrances;
-    std::vector<int> m_exits;
+    std::unordered_set<unsigned int> m_entrances;
+    std::unordered_set<unsigned int> m_exits;
 
     GraphData m_graphData;
     Renderer  m_renderer;

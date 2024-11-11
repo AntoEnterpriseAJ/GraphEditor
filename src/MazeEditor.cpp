@@ -54,8 +54,8 @@ void MazeEditor::loadFromFile(const std::string& filePath)
             currentCols++;
             unsigned int nodeInternalID = static_cast<unsigned int>(m_graphData.getNodes().size());
 
-            if (value == MazeCell::Entrance) m_entrances.push_back(nodeInternalID);
-            else if (value == MazeCell::Exit) m_exits.push_back(nodeInternalID);
+            if (value == MazeCell::Entrance) m_entrances.insert(nodeInternalID);
+            else if (value == MazeCell::Exit) m_exits.insert(nodeInternalID);
 
             m_graphData.addNode(new GraphNode{
                 {50.0f + currentCols * 2 * MazeEditor::kNodeSize, 50.0f + rows * 2 * MazeEditor::kNodeSize},
@@ -68,7 +68,7 @@ void MazeEditor::loadFromFile(const std::string& filePath)
     }
 
     addEdgesBetweenCells(rows, cols);
-}
+    }
 
 void MazeEditor::addEdgesBetweenCells(int rows, int cols)
 {
@@ -135,17 +135,18 @@ void MazeEditor::solveMaze()
     }
 }
 
-std::vector<int> MazeEditor::BFS(unsigned int startNodeID)
+std::vector<int> MazeEditor::BFS(unsigned int entrance)
 {
     std::vector<std::unordered_set<int>> adjList = m_graphData.getAdjacencyList();
 
     int nodesSize = m_graphData.getSize();
+    std::queue<int> visited; visited.push(entrance);
     std::vector<int> parents(nodesSize, -1);
-    std::queue<int> visited; visited.push(startNodeID);
+    std::vector<int> visitedAndAnalyzed;
     std::unordered_set<int> unvisited;
     for (int id = 0; id < nodesSize; ++id)
     {
-        if (id == startNodeID) continue;
+        if (id == entrance) continue;
 
         unvisited.insert(id);
     }
@@ -166,6 +167,8 @@ std::vector<int> MazeEditor::BFS(unsigned int startNodeID)
                 parents[adjNodeID] = nodeToVisit;
             }
         }
+
+        visitedAndAnalyzed.push_back(nodeToVisit);
     }
 
     return parents;
