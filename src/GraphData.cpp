@@ -149,6 +149,84 @@ GraphNode* GraphData::getNode(unsigned int nodeID)
     throw std::invalid_argument("the node doesn't exist");
 }
 
+std::vector<unsigned int> GraphData::genericPathTraversal(const GraphNode* const startNode) const
+{
+    std::unordered_set<unsigned int> visited;
+    visited.insert(startNode->getInternalID());
+    std::unordered_set<unsigned int> unvisited;
+    std::vector<unsigned int> visitedAndAnalyzed;
+    for (int nodeInternalID = 0; nodeInternalID < m_nodes.size(); ++nodeInternalID)
+    {
+        if (nodeInternalID != startNode->getInternalID())
+            unvisited.insert(nodeInternalID);
+    }
+
+    while (!visited.empty())
+    {
+        unsigned int nodeID = *visited.begin();
+        visited.erase(nodeID);
+
+        for (unsigned int adjacentID : m_adjacencyList[nodeID])
+        {
+            if (unvisited.contains(adjacentID))
+            {
+                visited.insert(adjacentID);
+                unvisited.erase(adjacentID);
+            }
+        }
+
+        visitedAndAnalyzed.push_back(nodeID);
+    }
+
+    return visitedAndAnalyzed;
+}
+
+void GraphData::totalGenericPathTraversal(const GraphNode* const startNode) const //TODO: fix for one node
+{
+    std::unordered_set<unsigned int> visited;
+    visited.insert(startNode->getInternalID());
+    std::vector<unsigned int> visitedAndAnalyzed;
+    std::unordered_set<unsigned int> unvisited;
+    for (int nodeInternalID = 0; nodeInternalID < m_nodes.size(); ++nodeInternalID)
+    {
+        if (nodeInternalID != startNode->getInternalID())
+            unvisited.insert(nodeInternalID);
+    }
+
+    while (!unvisited.empty())
+    {
+        while (!visited.empty())
+        {
+            unsigned int nodeID = *visited.begin();
+            unvisited.erase(nodeID);
+            visited.erase(nodeID);
+
+            for (unsigned int adjacentID : m_adjacencyList[nodeID])
+            {
+                if (unvisited.contains(adjacentID))
+                {
+                    visited.insert(adjacentID);
+                    unvisited.erase(adjacentID);
+                }
+            }
+
+            visitedAndAnalyzed.push_back(nodeID);
+        }
+
+        if (!unvisited.empty())
+        {
+            unsigned int newStartNode = *unvisited.begin();
+            visited.insert(newStartNode);
+        }
+    }
+
+    for (unsigned int nodeInternalID : visitedAndAnalyzed)
+    {
+        std::cout << nodeInternalID << " ";
+    }
+    std::cout << "\n";
+}
+
 int GraphData::getSize() const
 {
     return m_nodes.size();

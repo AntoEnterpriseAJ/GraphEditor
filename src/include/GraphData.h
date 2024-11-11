@@ -24,6 +24,9 @@ public:
     std::vector<GraphNode*>& getNodes();
     GraphNode* getNode(unsigned int nodeID);
 
+    std::vector<unsigned int> genericPathTraversal(const GraphNode* const startNode) const;
+    void totalGenericPathTraversal(const GraphNode* const startNode) const;
+
     const std::vector<Edge>& getEdges() const;
     const std::vector<std::unordered_set<int>>& getAdjacencyList() const;
 
