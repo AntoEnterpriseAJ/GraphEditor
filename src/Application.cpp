@@ -121,6 +121,35 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
         ResourceManager::getShader("text").bind();
         ResourceManager::getShader("text").setVec3("textColor", glm::vec4{ textColor[0], textColor[1], textColor[2], 1.0f });
     }
+    if (ImGui::Button("Generic path traversal"))
+    {
+        const GraphNode* startNode = m_graphEditor.getSelectedNode();
+        if (startNode)
+        {
+            const auto& traversal = m_graphEditor.getGraphData().genericPathTraversal(startNode);
+            for (unsigned int node : traversal)
+            {
+                std::cout << node << " ";
+            }
+            std::cout << "\n";
+        }
+        else
+        {
+            std::cout << "select the node first\n";
+        }
+    }
+    if (ImGui::Button("Total generic path traversal"))
+    {
+        const GraphNode* startNode = m_graphEditor.getSelectedNode();
+        if (startNode)
+        {
+            m_graphEditor.getGraphData().totalGenericPathTraversal(startNode);
+        }
+        else
+        {
+            std::cout << "select the node first\n";
+        }
+    }
 
     ImGui::End();
 }
