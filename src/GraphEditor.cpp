@@ -15,7 +15,7 @@
 #endif
 
 GraphEditor::GraphEditor()
-    : m_graphData{}, m_renderer {}
+    : m_graphData{}, m_renderer{}, m_selectedNode{nullptr}
 {
     m_graphData.setLogAdjacency(true);
 }
@@ -34,7 +34,6 @@ void GraphEditor::render()
     }
 }
 
-static bool nodeSelected = false;
 static bool pressed = false;
 static bool longClick = false;
 static float pressStartTime = 0.0f;
@@ -128,7 +127,7 @@ void GraphEditor::handleInput()
                     static_cast<unsigned int>(m_graphData.getNodes().size()),
                     glm::vec2{GraphEditor::kNodeRadius, GraphEditor::kNodeRadius} });
                 m_graphData.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
-                nodeSelected = false;
+                m_selectedNode = nullptr;
             }
             else
             {
@@ -147,6 +146,11 @@ GraphData& GraphEditor::getGraphData()
     return m_graphData;
 }
 
+const GraphNode* const GraphEditor::getSelectedNode() const
+{
+    return m_selectedNode;
+}
+
 static GraphNode* edgeStart;
 
 void GraphEditor::checkNodeSelect(glm::vec2 position)
@@ -158,20 +162,20 @@ void GraphEditor::checkNodeSelect(glm::vec2 position)
             continue;
         }
 
-        if (nodeSelected)
+        if (m_selectedNode != nullptr) // a node is already selected
         {
             tryAddEdge(edgeStart, node);
-            nodeSelected = false;
+            m_selectedNode = nullptr; // deselect node after adding an edge
             edgeStart = nullptr;
             return;
         }
 
         LOG("node selected\n");
-        nodeSelected = true;
+        m_selectedNode = node;
         edgeStart = node;
         return;
     }
-    nodeSelected = false;
+    m_selectedNode = nullptr; // if no node was found, deselect any selected node
 }
 
 void GraphEditor::tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
@@ -185,7 +189,7 @@ void GraphEditor::tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
     for (const auto& edge : m_graphData.getEdges())
     {
         const auto existingEdgeStart = edge.getStartNode();
-        const auto existingEdgeEnd = edge.getEndNode();;
+        const auto existingEdgeEnd = edge.getEndNode();
 
         bool isSameDirection = (existingEdgeStart->getPosition() == edgeStart->getPosition()
             && existingEdgeEnd->getPosition() == edgeEnd->getPosition());
@@ -200,7 +204,7 @@ void GraphEditor::tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
     }
 
     m_graphData.addEdge(edgeStart, edgeEnd);
-    nodeSelected = false;
+    m_selectedNode = nullptr; // clear selected node after edge is added
 
     for (const auto& edge : m_graphData.getEdges())
     {
@@ -212,7 +216,7 @@ void GraphEditor::tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
     }
 }
 
-bool GraphEditor::checkValidNodePosition(glm::vec2 position) 
+bool GraphEditor::checkValidNodePosition(glm::vec2 position)
 {
     for (auto& node : m_graphData.getNodes())
     {

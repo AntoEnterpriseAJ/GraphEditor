@@ -14,6 +14,7 @@ public:
     void handleInput();
 
     GraphData& getGraphData();
+    const GraphNode* const getSelectedNode() const;
 
 private:
     void tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
@@ -22,6 +23,7 @@ private:
 private:
     static constexpr float kNodeRadius = 30.0f; //TODO: make it adjustable
 private:
+    GraphNode* m_selectedNode;
     GraphData m_graphData;
     Renderer m_renderer;
 };
