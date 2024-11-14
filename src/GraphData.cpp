@@ -1,4 +1,5 @@
 #include "GraphData.h"
+#include <queue>
 
 #ifdef _DEBUG
 #include <iostream>
@@ -149,6 +150,36 @@ GraphNode* GraphData::getNode(unsigned int nodeID)
     throw std::invalid_argument("the node doesn't exist");
 }
 
+std::vector<unsigned int> GraphData::BFS(const GraphNode* const startNode) const
+{
+    std::vector<unsigned int> visistedAndAnalyzed;
+    std::queue<unsigned int> visited; visited.push(startNode->getInternalID());
+    std::unordered_set<unsigned int> unvisited;
+    for (const auto node : m_nodes)
+    {
+        if (node->getInternalID() != startNode->getInternalID())
+        {
+            unvisited.insert(node->getInternalID());
+        }
+    }
+
+    while (!visited.empty())
+    {
+        unsigned int nodeToVisit = visited.front();
+        visited.pop();
+
+        for (unsigned int adjacentNode : m_adjacencyList[nodeToVisit])
+        {
+            visited.push(adjacentNode);
+            unvisited.erase(adjacentNode);
+        }
+
+        visistedAndAnalyzed.push_back(nodeToVisit);
+    }
+
+    return visistedAndAnalyzed;
+}
+
 std::vector<unsigned int> GraphData::genericPathTraversal(const GraphNode* const startNode) const
 {
     std::unordered_set<unsigned int> visited;
@@ -181,7 +212,14 @@ std::vector<unsigned int> GraphData::genericPathTraversal(const GraphNode* const
     return visitedAndAnalyzed;
 }
 
-void GraphData::totalGenericPathTraversal(const GraphNode* const startNode) const //TODO: fix for one node
+std::vector<unsigned int> GraphData::topologicalSort(const GraphNode* const startNode) const
+{
+    return {};
+}
+
+std::vector<unsigned int> GraphData::totalGenericPathTraversal(const GraphNode* const startNode) const 
+//TODO: fix for one node
+//TOOD: repeat genericPathTraversal for the total
 {
     std::unordered_set<unsigned int> visited;
     visited.insert(startNode->getInternalID());
@@ -220,11 +258,7 @@ void GraphData::totalGenericPathTraversal(const GraphNode* const startNode) cons
         }
     }
 
-    for (unsigned int nodeInternalID : visitedAndAnalyzed)
-    {
-        std::cout << nodeInternalID << " ";
-    }
-    std::cout << "\n";
+    return visitedAndAnalyzed;
 }
 
 int GraphData::getSize() const
