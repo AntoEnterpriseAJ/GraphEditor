@@ -12,13 +12,13 @@ void MazeEditor::render(Renderer::Primitive nodePrimitive)
     for (const auto& node : m_graphData.getNodes())
     {
         m_renderer.render(node, ResourceManager::getShader("quad"), nodePrimitive);
-        //TODO: fix, render color can't be changed by IMGUI
-        m_renderer.renderText(std::to_string(node->getInternalID()),
-                              ResourceManager::getShader("text"),
-                              node->getPosition(),
-                              true,
-                              0.5f,
-                              glm::vec3{1.0f, 0.0f, 1.0f});
+        //TODO: fix, render text color can't be changed by IMGUI
+        //m_renderer.renderText(std::to_string(node->getInternalID()),
+        //                      ResourceManager::getShader("text"),
+        //                      node->getPosition(),
+        //                      true,
+        //                      0.5f,
+        //                      glm::vec3{1.0f, 0.0f, 1.0f});
     }
 }
 
@@ -115,7 +115,7 @@ glm::vec4 MazeEditor::getCellColor(int value)
 
 void MazeEditor::solveMaze()
 {
-    for (int entrance : m_entrances)
+    for (unsigned int entrance : m_entrances)
     {
         const std::vector<int>& parents = BFS(entrance);
 
