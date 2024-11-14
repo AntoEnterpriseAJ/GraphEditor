@@ -143,7 +143,29 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
         const GraphNode* startNode = m_graphEditor.getSelectedNode();
         if (startNode)
         {
-            m_graphEditor.getGraphData().totalGenericPathTraversal(startNode);
+            const auto& traversal = m_graphEditor.getGraphData().totalGenericPathTraversal(startNode);
+            for (unsigned int node : traversal)
+            {
+                std::cout << node << " ";
+            }
+            std::cout << "\n";
+        }
+        else
+        {
+            std::cout << "select the node first\n";
+        }
+    }
+    if (ImGui::Button("BFS"))
+    {
+        const GraphNode* startNode = m_graphEditor.getSelectedNode();
+        if (startNode)
+        {
+            const auto& traversal = m_graphEditor.getGraphData().BFS(startNode);
+            for (unsigned int node : traversal)
+            {
+                std::cout << node << " ";
+            }
+            std::cout << "\n";
         }
         else
         {
