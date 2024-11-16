@@ -204,6 +204,8 @@ bool GraphData::checkForCyclesOriented() const
 
 void GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
 {
+    this->setOriented(false);
+
     unsigned int startNodeID = startNode->getInternalID();
     std::stack<unsigned int> visited; visited.push(startNodeID);
     std::stack<unsigned int> visitedAndAnalyzed;
@@ -222,7 +224,7 @@ void GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
     std::vector<unsigned int> currentComponent;
     currentComponent.push_back(startNodeID);
 
-    while (!unvisited.empty() && !visited.empty())
+    while (!unvisited.empty() || !visited.empty())
     {
         while (!visited.empty())
         {
@@ -263,11 +265,6 @@ void GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
         }
     }
 
-    if (!currentComponent.empty())
-    {
-        components.push_back(currentComponent);
-    }
-
     for (const auto& component : components)
     {
         for (unsigned int node : component)
@@ -276,6 +273,8 @@ void GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
         }
         std::cout << "\n";
     }
+
+    this->setOriented(true);
 }
 
 std::vector<unsigned int> GraphData::BFS(const GraphNode* const startNode) const
