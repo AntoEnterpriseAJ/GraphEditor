@@ -49,6 +49,7 @@ void Renderer::render(GraphNode* node, Shader& nodeShader, Primitive primitive)
 
     if (primitive == Primitive::circle)
     {
+        nodeShader.setVec4("color", node->getColor());
         glBindVertexArray(m_circleVAO);
         glDrawArrays(GL_TRIANGLES, 0, 90);
     }
