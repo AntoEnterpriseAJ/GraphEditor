@@ -1,4 +1,4 @@
-#include "GraphData.h"
+﻿#include "GraphData.h"
 #include <queue>
 
 #ifdef _DEBUG
@@ -150,9 +150,61 @@ GraphNode* GraphData::getNode(unsigned int nodeID)
     throw std::invalid_argument("the node doesn't exist");
 }
 
+bool GraphData::checkForCyclesOriented() const
+{
+    std::vector<int> parents(m_nodes.size(), -1);
+    std::unordered_set<unsigned int> visiting;   
+    std::unordered_set<unsigned int> visited;    
+    std::stack<unsigned int> visitedStack;       
+
+    for (const auto node : m_nodes)
+    {
+        unsigned int startNodeID = node->getInternalID();
+
+        if (visited.contains(startNodeID))
+            continue;
+
+        visitedStack.push(startNodeID);
+        visiting.insert(startNodeID);
+
+        while (!visitedStack.empty())
+        {
+            unsigned int nodeToVisit = visitedStack.top();
+            bool foundAdjacentNode = false;
+
+            for (unsigned int adjNode : m_adjacencyList[nodeToVisit])
+            {
+                if (visited.contains(adjNode))
+                {
+                    continue;
+                }
+                if (visiting.contains(adjNode))
+                {
+                    return true;
+                }
+
+                visitedStack.push(adjNode);
+                visiting.insert(adjNode);
+                parents[adjNode] = nodeToVisit;
+                foundAdjacentNode = true;
+                break;
+            }
+
+            if (!foundAdjacentNode)
+            {
+                visitedStack.pop();
+                visiting.erase(nodeToVisit);
+                visited.insert(nodeToVisit);
+            }
+        }
+    }
+
+    return false;
+}
+
 std::vector<unsigned int> GraphData::BFS(const GraphNode* const startNode) const
 {
-    std::vector<unsigned int> visistedAndAnalyzed;
+    std::vector<unsigned int> visitedAndAnalyzed;
     std::queue<unsigned int> visited; visited.push(startNode->getInternalID());
     std::unordered_set<unsigned int> unvisited;
     for (const auto node : m_nodes)
@@ -170,14 +222,46 @@ std::vector<unsigned int> GraphData::BFS(const GraphNode* const startNode) const
 
         for (unsigned int adjacentNode : m_adjacencyList[nodeToVisit])
         {
+            if (!unvisited.contains(adjacentNode))
+            {
+                continue;
+            }
+
             visited.push(adjacentNode);
             unvisited.erase(adjacentNode);
         }
 
-        visistedAndAnalyzed.push_back(nodeToVisit);
+        visitedAndAnalyzed.push_back(nodeToVisit);
     }
 
-    return visistedAndAnalyzed;
+    return visitedAndAnalyzed;
+}
+
+std::vector<unsigned int> GraphData::DFS(const GraphNode* const startNode) const
+{
+    unsigned int startNodeID = startNode->getInternalID();
+    std::stack<unsigned int> toVisit; toVisit.push(startNodeID);
+    std::vector<unsigned int> visitedAndAnalyzed;
+    std::unordered_set<unsigned int> visited;
+
+    while (!toVisit.empty())
+    {
+        unsigned int nodeToVist = toVisit.top();
+        toVisit.pop();
+        visited.insert(nodeToVist);
+
+        for (unsigned int adjNodeID : m_adjacencyList[nodeToVist])
+        {
+            if (!visited.contains(adjNodeID))
+            {
+                toVisit.push(adjNodeID);
+            }
+        }
+
+        visitedAndAnalyzed.push_back(nodeToVist);
+    }
+
+    return visitedAndAnalyzed;
 }
 
 std::vector<unsigned int> GraphData::genericPathTraversal(const GraphNode* const startNode) const
@@ -212,9 +296,64 @@ std::vector<unsigned int> GraphData::genericPathTraversal(const GraphNode* const
     return visitedAndAnalyzed;
 }
 
-std::vector<unsigned int> GraphData::topologicalSort(const GraphNode* const startNode) const
+std::stack<unsigned int> GraphData::topologicalSort() const
 {
-    return {};
+    if (this->checkForCyclesOriented())
+    {
+        std::cout << "Can't perform topological sort on a graph with cycles\n";
+        return {};
+    }
+
+    unsigned int startNodeID = m_nodes[std::rand() % m_nodes.size()]->getInternalID();
+    std::cout << "Start node: " << startNodeID << "\n";
+    std::stack<unsigned int> visited; visited.push(startNodeID);
+    std::stack<unsigned int> visitedAndAnalyzed;
+
+    std::unordered_set<unsigned int> unvisited;
+    for (const auto node : m_nodes)
+    {
+        unsigned int nodeID = node->getInternalID();
+        if (nodeID != startNodeID)
+        {
+            unvisited.insert(nodeID);
+        }
+    }
+
+    while (!unvisited.empty())
+    {
+        while (!visited.empty())
+        {
+            unsigned int nodeToVisit = visited.top();
+
+            bool foundAdjNode = false;
+
+            for (unsigned int adjNode : m_adjacencyList[nodeToVisit])
+            {
+                if (unvisited.contains(adjNode))
+                {
+                    foundAdjNode = true;
+                    visited.push(adjNode);
+                    unvisited.erase(adjNode);
+                    break;
+                }
+            }
+
+            if (!foundAdjNode)
+            {
+                visitedAndAnalyzed.push(nodeToVisit);
+                unvisited.erase(nodeToVisit);
+                visited.pop();
+            }
+        }
+
+        if (!unvisited.empty())
+        {
+            unsigned int newStartNode = *unvisited.begin();
+            visited.push(newStartNode);
+        }
+    }
+
+    return visitedAndAnalyzed;
 }
 
 std::vector<unsigned int> GraphData::totalGenericPathTraversal(const GraphNode* const startNode) const 

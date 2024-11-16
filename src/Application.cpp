@@ -172,6 +172,39 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
             std::cout << "select the node first\n";
         }
     }
+    if (ImGui::Button("DFS"))
+    {
+        const GraphNode* startNode = m_graphEditor.getSelectedNode();
+        if (startNode)
+        {
+            const auto& traversal = m_graphEditor.getGraphData().DFS(startNode);
+            for (unsigned int node : traversal)
+            {
+                std::cout << node << " ";
+            }
+            std::cout << "\n";
+        }
+        else
+        {
+            std::cout << "select the node first\n";
+        }
+    }
+    if (ImGui::Button("Topological sort"))
+    {
+        auto sortedGraph = m_graphEditor.getGraphData().topologicalSort();
+
+        while (!sortedGraph.empty())
+        {
+            std::cout << sortedGraph.top() << " ";
+            sortedGraph.pop();
+        }
+
+        std::cout << "\n";
+    }
+    if (ImGui::Button("Check cycles oriented"))
+    {
+        std::cout << (m_graphEditor.getGraphData().checkForCyclesOriented() ? "Cycles found\n" : "No cycles found\n");
+    }
 
     ImGui::End();
 }

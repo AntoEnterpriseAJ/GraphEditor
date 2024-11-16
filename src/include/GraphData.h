@@ -24,9 +24,11 @@ public:
     std::vector<GraphNode*>& getNodes();
     GraphNode* getNode(unsigned int nodeID);
 
+    bool checkForCyclesOriented() const;
+    std::stack<unsigned int>  topologicalSort() const;
     std::vector<unsigned int> BFS(const GraphNode* const startNode) const;
+    std::vector<unsigned int> DFS(const GraphNode* const startNode) const;
     std::vector<unsigned int> genericPathTraversal(const GraphNode* const startNode) const;
-    std::vector<unsigned int> topologicalSort(const GraphNode* const startNode) const;
     std::vector<unsigned int> totalGenericPathTraversal(const GraphNode* const startNode) const;
 
     const std::vector<Edge>& getEdges() const;
