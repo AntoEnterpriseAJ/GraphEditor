@@ -217,6 +217,36 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
             std::cout << "select the node first\n";
         }
     }
+    if (ImGui::Button("Inverse graph"))
+    {
+        m_graphEditor.getGraphData().inverseGraph();
+    }
+    if (ImGui::Button("Strongly connected components"))
+    {
+        const GraphNode* startNode = m_graphEditor.getSelectedNode();
+        if (startNode)
+        {
+            m_graphEditor.getGraphData().stronglyConnectedComponents(startNode);
+        }
+        else
+        {
+            std::cout << "select the node first\n";
+        }
+    }
+    if (ImGui::Button("Reconstruct graph from components"))
+    {
+        const GraphNode* startNode = m_graphEditor.getSelectedNode();
+
+        if (startNode)
+        {
+            m_graphEditor.getGraphData().reconstructGraphFromComponents(m_graphEditor.getGraphData().stronglyConnectedComponents(startNode));
+            m_graphEditor.setSelectedNode(nullptr);
+        }
+        else
+        {
+            std::cout << "select the node first\n";
+        }
+    }
 
     ImGui::End();
 }
