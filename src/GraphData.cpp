@@ -1,5 +1,9 @@
 ﻿#include "GraphData.h"
+
+#include <execution>
 #include <queue>
+#include <set>
+#include <imgui/imgui_internal.h>
 
 #ifdef _DEBUG
 #include <iostream>
@@ -87,6 +91,21 @@ void GraphData::undo()
 const std::vector<std::unordered_set<int>>& GraphData::getAdjacencyList() const
 {
     return m_adjacencyList;
+}
+
+void GraphData::inverseGraph()
+{
+    std::vector<Edge> newEdges;
+    newEdges.reserve(m_edges.size());
+
+    for (const auto& edge : m_edges)
+    {
+        newEdges.emplace_back(edge.getEndNode(), edge.getStartNode());
+    }
+
+    m_edges = newEdges;
+    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+    updateAdjacencyList();
 }
 
 const std::vector<Edge>& GraphData::getEdges() const
@@ -202,6 +221,139 @@ bool GraphData::checkForCyclesOriented() const
     return false;
 }
 
+void GraphData::reconstructGraphFromComponents(const std::vector<std::vector<unsigned int>>& components)
+{
+    std::vector<GraphNode*> newGraph;
+
+    for (const auto& component : components)
+    {
+        glm::vec2 position = m_nodes[component[0]]->getPosition();
+        std::string label;
+
+        for (unsigned int nodeID : component)
+        {
+            label += std::to_string(nodeID) + " ";
+        }
+
+        newGraph.push_back(new GraphNode{ position, label, static_cast<unsigned int>(newGraph.size()) });
+    }
+
+    std::unordered_map<unsigned int, unsigned int> component_map;
+    for (unsigned int componentID = 0; componentID < components.size(); ++componentID)
+    {
+        for (unsigned int nodeID : components[componentID])
+        {
+            component_map[nodeID] = componentID;
+        }
+    }
+
+    std::vector<Edge> newEdges;
+    for (const auto& edge : m_edges)
+    {
+        unsigned int startNodeID = edge.getStartNode()->getInternalID();
+        unsigned int endNodeID = edge.getEndNode()->getInternalID();
+
+        unsigned int startComponent = component_map[startNodeID];
+        unsigned int endComponent = component_map[endNodeID];
+
+        if (startComponent != endComponent)
+        {
+            newEdges.emplace_back(newGraph[startComponent], newGraph[endComponent]);
+        }
+    }
+
+    for (auto node : m_nodes)
+    {
+        delete node;
+    }
+    m_edges.clear();
+
+    m_nodes = std::move(newGraph);
+    m_edges = std::move(newEdges);
+
+    m_actions = std::stack<Action>{};
+    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+    updateAdjacencyList();
+}
+
+
+std::vector<std::vector<unsigned int>> GraphData::stronglyConnectedComponents(const GraphNode* const startNode)
+{
+    std::vector<int> t2 = totalDFS(startNode);
+
+    std::priority_queue<std::pair<int, int>> pq;
+    for (int i = 0; i < t2.size(); ++i)
+    {
+        pq.emplace(t2[i], i);
+    }
+
+    this->inverseGraph();
+
+    std::unordered_set<unsigned int> unvisited;
+    for (unsigned int i = 0; i < m_nodes.size(); ++i)
+    {
+        unvisited.insert(i);
+    }
+
+    std::vector<std::vector<unsigned int>> components;
+
+    while (!pq.empty())
+    {
+        auto [value, startNodeID] = pq.top();
+        pq.pop();
+
+        if (!unvisited.contains(startNodeID))
+        {
+            continue;
+        }
+
+        std::vector<unsigned int> currentComponent;
+        std::stack<unsigned int> stack;
+        stack.push(startNodeID);
+
+        unvisited.erase(startNodeID);
+
+        while (!stack.empty())
+        {
+            unsigned int nodeToVisit = stack.top();
+            stack.pop();
+            currentComponent.push_back(nodeToVisit);
+
+            for (unsigned int adjNode : m_adjacencyList[nodeToVisit])
+            {
+                if (unvisited.contains(adjNode))
+                {
+                    stack.push(adjNode);
+                    unvisited.erase(adjNode);
+                }
+            }
+        }
+
+        components.push_back(currentComponent);
+    }
+
+    this->inverseGraph();
+
+    for (const auto& component : components)
+    {
+        glm::vec4 color = glm::vec4{
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX,
+            1.0f
+        };
+
+        for (unsigned int node : component)
+        {
+            m_nodes[node]->setColor(color);
+            std::cout << node << " ";
+        }
+        std::cout << "\n";
+    }
+
+    return components;
+}
+
 void GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
 {
     this->setOriented(false);
@@ -267,8 +419,11 @@ void GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
 
     for (const auto& component : components)
     {
+        glm::vec4 color;
+        color = glm::vec4{ static_cast<float>(rand()) / RAND_MAX, static_cast<float>(rand()) / RAND_MAX, static_cast<float>(rand()) / RAND_MAX, 1.0f };
         for (unsigned int node : component)
         {
+            m_nodes[node]->setColor(color);
             std::cout << node << " ";
         }
         std::cout << "\n";
@@ -337,6 +492,73 @@ std::vector<unsigned int> GraphData::DFS(const GraphNode* const startNode) const
     }
 
     return visitedAndAnalyzed;
+}
+
+std::vector<int> GraphData::totalDFS(const GraphNode* const startNode) const
+{
+    unsigned int startNodeID = startNode->getInternalID();
+
+    std::vector<int> parents(m_nodes.size(), -1);
+    std::vector<unsigned int> visitedAndAnalyzed;
+    std::stack<unsigned int> visited; visited.push(startNodeID);
+    std::unordered_set<unsigned int> unvisited;
+    for (auto node : m_nodes)
+    {
+        unsigned int nodeID = node->getInternalID();
+        if (nodeID != startNodeID)
+        {
+            unvisited.insert(nodeID);
+        }
+    }
+
+    int inf = std::numeric_limits<int>::max();
+
+    std::vector<int> t1(m_nodes.size(), inf);
+    std::vector<int> t2(m_nodes.size(), inf);
+
+    int t = 0;
+    t1[startNodeID] = ++t;
+
+    while (!unvisited.empty() || !visited.empty())
+    {
+        while (!visited.empty())
+        {
+            unsigned int nodeToVisit = visited.top();
+
+            bool foundAdjNode = false;
+
+            for (unsigned int adjNode : m_adjacencyList[nodeToVisit])
+            {
+                if (unvisited.contains(adjNode))
+                {
+                    foundAdjNode = true;
+
+                    visited.push(adjNode);
+                    unvisited.erase(adjNode);
+                    t1[adjNode] = ++t;
+                    parents[adjNode] = nodeToVisit;
+                    break;
+                }
+            }
+
+            if (!foundAdjNode)
+            {
+                visited.pop();
+                visitedAndAnalyzed.push_back(nodeToVisit);
+                t2[nodeToVisit] = ++t;
+            }
+        }
+
+        if (!unvisited.empty())
+        {
+            unsigned int newStartNode = *unvisited.begin();
+            visited.push(newStartNode);
+            unvisited.erase(newStartNode);
+            t1[newStartNode] = ++t;
+        }
+    }
+
+    return t2;
 }
 
 std::vector<unsigned int> GraphData::genericPathTraversal(const GraphNode* const startNode) const
