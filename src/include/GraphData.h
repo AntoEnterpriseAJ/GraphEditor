@@ -25,6 +25,7 @@ public:
     GraphNode* getNode(unsigned int nodeID);
 
     bool checkForCyclesOriented() const;
+    void weaklyConnectedComponents(const GraphNode* const startNode);
     std::stack<unsigned int>  topologicalSort() const;
     std::vector<unsigned int> BFS(const GraphNode* const startNode) const;
     std::vector<unsigned int> DFS(const GraphNode* const startNode) const;

@@ -205,6 +205,18 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
     {
         std::cout << (m_graphEditor.getGraphData().checkForCyclesOriented() ? "Cycles found\n" : "No cycles found\n");
     }
+    if (ImGui::Button("Weakly connected components"))
+    {
+        const GraphNode* startNode = m_graphEditor.getSelectedNode();
+        if (startNode)
+        {
+            m_graphEditor.getGraphData().weaklyConnectedComponents(startNode);
+        }
+        else
+        {
+            std::cout << "select the node first\n";
+        }
+    }
 
     ImGui::End();
 }

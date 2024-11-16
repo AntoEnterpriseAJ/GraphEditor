@@ -202,6 +202,82 @@ bool GraphData::checkForCyclesOriented() const
     return false;
 }
 
+void GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
+{
+    unsigned int startNodeID = startNode->getInternalID();
+    std::stack<unsigned int> visited; visited.push(startNodeID);
+    std::stack<unsigned int> visitedAndAnalyzed;
+
+    std::unordered_set<unsigned int> unvisited;
+    for (const auto node : m_nodes)
+    {
+        unsigned int nodeID = node->getInternalID();
+        if (nodeID != startNodeID)
+        {
+            unvisited.insert(nodeID);
+        }
+    }
+
+    std::vector<std::vector<unsigned int>> components;
+    std::vector<unsigned int> currentComponent;
+    currentComponent.push_back(startNodeID);
+
+    while (!unvisited.empty() && !visited.empty())
+    {
+        while (!visited.empty())
+        {
+            unsigned int nodeToVisit = visited.top();
+
+            bool foundAdjNode = false;
+
+            for (unsigned int adjNode : m_adjacencyList[nodeToVisit])
+            {
+                if (unvisited.contains(adjNode))
+                {
+                    foundAdjNode = true;
+                    visited.push(adjNode);
+                    currentComponent.push_back(adjNode);
+                    unvisited.erase(adjNode);
+                    break;
+                }
+            }
+
+            if (!foundAdjNode)
+            {
+                visitedAndAnalyzed.push(nodeToVisit);
+                visited.pop();
+            }
+        }
+
+        components.push_back(currentComponent);
+
+        if (!unvisited.empty())
+        {
+            unsigned int newStartNode = *unvisited.begin();
+            unvisited.erase(newStartNode);
+
+            currentComponent.clear();
+            currentComponent.push_back(newStartNode);
+
+            visited.push(newStartNode);
+        }
+    }
+
+    if (!currentComponent.empty())
+    {
+        components.push_back(currentComponent);
+    }
+
+    for (const auto& component : components)
+    {
+        for (unsigned int node : component)
+        {
+            std::cout << node << " ";
+        }
+        std::cout << "\n";
+    }
+}
+
 std::vector<unsigned int> GraphData::BFS(const GraphNode* const startNode) const
 {
     std::vector<unsigned int> visitedAndAnalyzed;
@@ -341,7 +417,7 @@ std::stack<unsigned int> GraphData::topologicalSort() const
             if (!foundAdjNode)
             {
                 visitedAndAnalyzed.push(nodeToVisit);
-                unvisited.erase(nodeToVisit);
+                unvisited.erase(nodeToVisit); //TODO: check PTDF
                 visited.pop();
             }
         }
