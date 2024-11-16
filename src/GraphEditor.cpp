@@ -151,6 +151,11 @@ const GraphNode* const GraphEditor::getSelectedNode() const
     return m_selectedNode;
 }
 
+void GraphEditor::setSelectedNode(GraphNode* node)
+{
+    m_selectedNode = node;
+}
+
 static GraphNode* edgeStart;
 
 void GraphEditor::checkNodeSelect(glm::vec2 position)

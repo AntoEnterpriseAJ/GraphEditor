@@ -15,6 +15,7 @@ public:
 
     GraphData& getGraphData();
     const GraphNode* const getSelectedNode() const;
+    void setSelectedNode(GraphNode* node);
 
 private:
     void tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
