@@ -10,6 +10,8 @@ public:
     GraphNode* getStartNode() const;
     GraphNode* getEndNode() const;
 
+    bool operator==(const Edge& other) const;
+
 private:
     GraphNode* m_nodeStart;
     GraphNode* m_nodeEnd;
