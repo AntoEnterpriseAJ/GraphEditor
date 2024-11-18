@@ -3,6 +3,7 @@
 #include <execution>
 #include <queue>
 #include <set>
+#include <ranges>
 #include <imgui/imgui_internal.h>
 
 #ifdef _DEBUG
@@ -169,56 +170,116 @@ GraphNode* GraphData::getNode(unsigned int nodeID)
     throw std::invalid_argument("the node doesn't exist");
 }
 
-bool GraphData::checkForCyclesOriented() const
+bool GraphData::checkCycles() const
 {
+    unsigned int startNodeID = m_nodes[std::rand() % m_nodes.size()]->getInternalID();
+
     std::vector<int> parents(m_nodes.size(), -1);
-    std::unordered_set<unsigned int> visiting;   
-    std::unordered_set<unsigned int> visited;    
-    std::stack<unsigned int> visitedStack;       
-
-    for (const auto node : m_nodes)
+    std::stack<unsigned int> visiting; visiting.push(startNodeID);
+    std::unordered_set<unsigned int> visitingSet; visitingSet.insert(startNodeID);
+    std::unordered_set<unsigned int> unvisited;
+    for (auto node : m_nodes)
     {
-        unsigned int startNodeID = node->getInternalID();
-
-        if (visited.contains(startNodeID))
-            continue;
-
-        visitedStack.push(startNodeID);
-        visiting.insert(startNodeID);
-
-        while (!visitedStack.empty())
+        unsigned int nodeID = node->getInternalID();
+        if (nodeID != startNodeID)
         {
-            unsigned int nodeToVisit = visitedStack.top();
-            bool foundAdjacentNode = false;
+            unvisited.insert(nodeID);
+        }
+    }
+
+    while (!unvisited.empty())
+    {
+        while (!visiting.empty())
+        {
+            unsigned int nodeToVisit = visiting.top();
+            
+            bool foundAdjNode = false;
 
             for (unsigned int adjNode : m_adjacencyList[nodeToVisit])
             {
-                if (visited.contains(adjNode))
+                if (unvisited.contains(adjNode))
                 {
-                    continue;
+                    parents[adjNode] = nodeToVisit;
+                    visiting.push(adjNode);
+                    visitingSet.insert(adjNode);
+                    unvisited.erase(adjNode);
+                    foundAdjNode = true;
+                    break;
                 }
-                if (visiting.contains(adjNode))
+                else if (visitingSet.contains(adjNode) && parents[nodeToVisit] != adjNode)
                 {
                     return true;
                 }
-
-                visitedStack.push(adjNode);
-                visiting.insert(adjNode);
-                parents[adjNode] = nodeToVisit;
-                foundAdjacentNode = true;
-                break;
             }
 
-            if (!foundAdjacentNode)
+            if (!foundAdjNode)
             {
-                visitedStack.pop();
-                visiting.erase(nodeToVisit);
-                visited.insert(nodeToVisit);
+                visiting.pop();
+                visitingSet.erase(nodeToVisit);
             }
+        }
+
+        if (!unvisited.empty())
+        {
+            unsigned int newStartNode = *unvisited.begin();
+            unvisited.erase(newStartNode);
+            visiting.push(newStartNode);
+            visitingSet.insert(newStartNode);
         }
     }
 
     return false;
+}
+
+GraphNode* GraphData::findRoot()
+{
+    if (!isTree())
+    {
+        std::cout << "Not a tree\n";
+        return nullptr;
+    }
+
+    std::vector<unsigned int> inDegree(m_nodes.size(), 0);
+
+    for (const auto& edge : m_edges)
+    {
+        unsigned int endNodeID = edge.getEndNode()->getInternalID();
+        inDegree[endNodeID]++;
+    }
+
+    GraphNode* root = nullptr;
+
+    for (unsigned int nodeID = 0; nodeID < m_nodes.size(); ++nodeID)
+    {
+        if (inDegree[nodeID] == 0)
+        {
+            if (root != nullptr && m_oriented)
+            {
+                std::cout << "More than 1 root candidate\n";
+                return nullptr;
+            }
+            root = this->getNode(nodeID);
+        }
+    }
+
+    if (root == nullptr && m_oriented)
+    {
+        std::cout << "More than 1 root candidate\n";
+    }
+
+    return root;
+}
+
+bool GraphData::isTree()
+{
+    return (isWeaklyConnected() && !this->checkCycles());
+}
+
+bool GraphData::isWeaklyConnected()
+{
+    std::vector<std::vector<unsigned int>> components = weaklyConnectedComponents(m_nodes[rand() % m_nodes.size()]);
+
+    return components.size() == 1;
 }
 
 void GraphData::reconstructGraphFromComponents(const std::vector<std::vector<unsigned int>>& components)
@@ -334,29 +395,17 @@ std::vector<std::vector<unsigned int>> GraphData::stronglyConnectedComponents(co
 
     this->inverseGraph();
 
-    for (const auto& component : components)
-    {
-        glm::vec4 color = glm::vec4{
-            static_cast<float>(rand()) / RAND_MAX,
-            static_cast<float>(rand()) / RAND_MAX,
-            static_cast<float>(rand()) / RAND_MAX,
-            1.0f
-        };
-
-        for (unsigned int node : component)
-        {
-            m_nodes[node]->setColor(color);
-            std::cout << node << " ";
-        }
-        std::cout << "\n";
-    }
-
     return components;
 }
 
-void GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
+std::vector<std::vector<unsigned int>> GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
 {
-    this->setOriented(false);
+    bool oriented = m_oriented;
+
+    if (oriented)
+    {
+        this->setOriented(false);
+    }
 
     unsigned int startNodeID = startNode->getInternalID();
     std::stack<unsigned int> visited; visited.push(startNodeID);
@@ -417,19 +466,12 @@ void GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
         }
     }
 
-    for (const auto& component : components)
+    if (oriented)
     {
-        glm::vec4 color;
-        color = glm::vec4{ static_cast<float>(rand()) / RAND_MAX, static_cast<float>(rand()) / RAND_MAX, static_cast<float>(rand()) / RAND_MAX, 1.0f };
-        for (unsigned int node : component)
-        {
-            m_nodes[node]->setColor(color);
-            std::cout << node << " ";
-        }
-        std::cout << "\n";
+        this->setOriented(true);
     }
 
-    this->setOriented(true);
+    return components;
 }
 
 std::vector<unsigned int> GraphData::BFS(const GraphNode* const startNode) const
@@ -593,15 +635,15 @@ std::vector<unsigned int> GraphData::genericPathTraversal(const GraphNode* const
     return visitedAndAnalyzed;
 }
 
-std::stack<unsigned int> GraphData::topologicalSort() const
+std::vector<std::vector<unsigned int>> GraphData::topologicalSort(const GraphNode* const startNode)
 {
-    if (this->checkForCyclesOriented())
+    if (this->checkCycles())
     {
         std::cout << "Can't perform topological sort on a graph with cycles\n";
         return {};
     }
 
-    unsigned int startNodeID = m_nodes[std::rand() % m_nodes.size()]->getInternalID();
+    unsigned int startNodeID = startNode->getInternalID();
     std::cout << "Start node: " << startNodeID << "\n";
     std::stack<unsigned int> visited; visited.push(startNodeID);
     std::stack<unsigned int> visitedAndAnalyzed;
@@ -615,6 +657,8 @@ std::stack<unsigned int> GraphData::topologicalSort() const
             unvisited.insert(nodeID);
         }
     }
+
+    std::vector<std::vector<unsigned int>> components;
 
     while (!unvisited.empty())
     {
@@ -638,10 +682,23 @@ std::stack<unsigned int> GraphData::topologicalSort() const
             if (!foundAdjNode)
             {
                 visitedAndAnalyzed.push(nodeToVisit);
-                unvisited.erase(nodeToVisit); //TODO: check PTDF
+                unvisited.erase(nodeToVisit);
                 visited.pop();
             }
         }
+
+        std::vector<unsigned int> component;
+        component.reserve(visitedAndAnalyzed.size());
+
+        while (!visitedAndAnalyzed.empty())
+        {
+            unsigned int nodeID = visitedAndAnalyzed.top();
+            visitedAndAnalyzed.pop();
+            
+            component.push_back(nodeID);
+        }
+
+        components.push_back(component);
 
         if (!unvisited.empty())
         {
@@ -650,7 +707,46 @@ std::stack<unsigned int> GraphData::topologicalSort() const
         }
     }
 
-    return visitedAndAnalyzed;
+    disconnectComponents(components);
+
+    return components;
+}
+
+void GraphData::disconnectComponents(const std::vector<std::vector<unsigned int>>& components)
+{
+    std::unordered_map<unsigned int, unsigned int> component_map;
+
+    // Map each nodeID to its componentID
+    for (unsigned int componentID = 0; componentID < components.size(); ++componentID)
+    {
+        for (unsigned int nodeID : components[componentID])
+        {
+            component_map[nodeID] = componentID;
+        }
+    }
+
+    // Collect edges to be removed
+    std::vector<Edge> edges_to_remove;
+
+    for (const auto& edge : m_edges) // Iterate normally (no reverse view here)
+    {
+        unsigned int startNodeID = edge.getStartNode()->getInternalID();
+        unsigned int endNodeID = edge.getEndNode()->getInternalID();
+
+        unsigned int startComponent = component_map[startNodeID];
+        unsigned int endComponent = component_map[endNodeID];
+
+        if (startComponent != endComponent)
+        {
+            edges_to_remove.push_back(edge);
+        }
+    }
+
+    // Remove the edges
+    for (const auto& edge : edges_to_remove)
+    {
+        std::erase(m_edges, edge);
+    }
 }
 
 std::vector<unsigned int> GraphData::totalGenericPathTraversal(const GraphNode* const startNode) const 
