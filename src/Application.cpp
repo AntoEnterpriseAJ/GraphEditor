@@ -191,26 +191,57 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
     }
     if (ImGui::Button("Topological sort"))
     {
-        auto sortedGraph = m_graphEditor.getGraphData().topologicalSort();
+        const GraphNode* const selectedNode = m_graphEditor.getSelectedNode();
 
-        while (!sortedGraph.empty())
+        if (selectedNode)
         {
-            std::cout << sortedGraph.top() << " ";
-            sortedGraph.pop();
-        }
+            auto sortedGraph = m_graphEditor.getGraphData().topologicalSort(selectedNode);
 
-        std::cout << "\n";
+            std::ofstream fout("res/topologicalSort/topoSort.txt");
+
+            if (!fout.is_open())
+            {
+                std::cout << "ERROR::FILE: could not open file\n";
+                return;
+            }
+
+            for (const auto& component : sortedGraph)
+            {
+                for (unsigned int node : component)
+                {
+                    fout << node << " ";
+                    std::cout << node << " ";
+                }
+            }
+            std::cout << "\n";
+            fout << "\n";
+        }
     }
     if (ImGui::Button("Check cycles oriented"))
     {
-        std::cout << (m_graphEditor.getGraphData().checkForCyclesOriented() ? "Cycles found\n" : "No cycles found\n");
+        std::cout << (m_graphEditor.getGraphData().checkCycles() ? "Cycles found\n" : "No cycles found\n");
     }
     if (ImGui::Button("Weakly connected components"))
     {
         const GraphNode* startNode = m_graphEditor.getSelectedNode();
         if (startNode)
         {
-            m_graphEditor.getGraphData().weaklyConnectedComponents(startNode);
+            auto components = m_graphEditor.getGraphData().weaklyConnectedComponents(startNode);
+
+            for (const auto& component : components)
+            {
+                 glm::vec4 color = glm::vec4{ static_cast<float>(rand()) / RAND_MAX,
+                                   static_cast<float>(rand()) / RAND_MAX,
+                                   static_cast<float>(rand()) / RAND_MAX,
+                                   1.0f };
+
+                for (unsigned int node : component)
+                {
+                    m_graphEditor.getGraphData().getNodes()[node]->setColor(color);
+                    std::cout << node << " ";
+                }
+                std::cout << "\n";
+            }
         }
         else
         {
@@ -226,7 +257,24 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
         const GraphNode* startNode = m_graphEditor.getSelectedNode();
         if (startNode)
         {
-            m_graphEditor.getGraphData().stronglyConnectedComponents(startNode);
+            const auto& components = m_graphEditor.getGraphData().stronglyConnectedComponents(startNode);
+
+            for (const auto& component : components)
+            {
+                glm::vec4 color = glm::vec4{
+                    static_cast<float>(rand()) / RAND_MAX,
+                    static_cast<float>(rand()) / RAND_MAX,
+                    static_cast<float>(rand()) / RAND_MAX,
+                    1.0f
+                };
+
+                for (unsigned int node : component)
+                {
+                    m_graphEditor.getGraphData().getNodes()[node]->setColor(color);
+                    std::cout << node << " ";
+                }
+                std::cout << "\n";
+            }
         }
         else
         {
@@ -245,6 +293,15 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
         else
         {
             std::cout << "select the node first\n";
+        }
+    }
+    if (ImGui::Button("Find root"))
+    {
+        GraphNode* root = m_graphEditor.getGraphData().findRoot();
+
+        if (root)
+        {
+            std::cout << "The root is: " << root->getInternalID() << "\n";
         }
     }
 
