@@ -1,7 +1,7 @@
 #include "Edge.h"
 
 Edge::Edge(GraphNode* nodeStart, GraphNode* nodeEnd)
-    : m_nodeEnd{ nodeEnd }, m_nodeStart{ nodeStart }, m_weighted{ true }, m_weight{ 0 }
+    : m_nodeEnd{ nodeEnd }, m_nodeStart{ nodeStart }, m_weight{ 0 }
 {}
 
 GraphNode* Edge::getStartNode() const
@@ -22,11 +22,6 @@ void Edge::setWeight(int weight)
 int Edge::getWeight() const
 {
     return m_weight;
-}
-
-bool Edge::isWeighted() const
-{
-    return m_weighted;
 }
 
 bool Edge::operator==(const Edge& other) const
