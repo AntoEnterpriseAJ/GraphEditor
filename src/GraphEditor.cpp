@@ -119,19 +119,22 @@ void GraphEditor::handleInput()
             double xPos, yPos;
             glfwGetCursorPos(window, &xPos, &yPos);
 
-            if (checkValidNodePosition(glm::vec2{ xPos, yPos }))
+            if (!checkEdgeSelect(glm::vec2{ xPos, yPos }))
             {
-                m_graphData.addNode(new GraphNode{
-                    glm::vec2{xPos, yPos},
-                    std::to_string(m_graphData.getNodes().size()),
-                    static_cast<unsigned int>(m_graphData.getNodes().size()),
-                    glm::vec2{GraphEditor::kNodeRadius, GraphEditor::kNodeRadius} });
-                m_graphData.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
-                m_selectedNode = nullptr;
-            }
-            else
-            {
-                checkNodeSelect(glm::vec2{ xPos, yPos });
+                if (checkValidNodePosition(glm::vec2{ xPos, yPos }))
+                {
+                    m_graphData.addNode(new GraphNode{
+                        glm::vec2{xPos, yPos},
+                        std::to_string(m_graphData.getNodes().size()),
+                        static_cast<unsigned int>(m_graphData.getNodes().size()),
+                        glm::vec2{GraphEditor::kNodeRadius, GraphEditor::kNodeRadius} });
+                    m_graphData.logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
+                    m_selectedNode = nullptr;
+                }
+                else
+                {
+                    checkNodeSelect(glm::vec2{ xPos, yPos });
+                }
             }
         }
 
@@ -167,10 +170,10 @@ void GraphEditor::checkNodeSelect(glm::vec2 position)
             continue;
         }
 
-        if (m_selectedNode != nullptr) // a node is already selected
+        if (m_selectedNode != nullptr)
         {
             tryAddEdge(edgeStart, node);
-            m_selectedNode = nullptr; // deselect node after adding an edge
+            m_selectedNode = nullptr;
             edgeStart = nullptr;
             return;
         }
@@ -180,7 +183,41 @@ void GraphEditor::checkNodeSelect(glm::vec2 position)
         edgeStart = node;
         return;
     }
-    m_selectedNode = nullptr; // if no node was found, deselect any selected node
+    m_selectedNode = nullptr;
+}
+
+bool GraphEditor::checkEdgeSelect(glm::vec2 position)
+{
+    constexpr float selectionThreshold = 10.0f;
+
+    for (auto& edge : m_graphData.getEdgesRef())
+    {
+        glm::vec2 edgeStart{ edge.getStartNode()->getPosition().x, edge.getStartNode()->getPosition().y };
+        glm::vec2 edgeEnd{ edge.getEndNode()->getPosition().x, edge.getEndNode()->getPosition().y };
+        float tipThreshold = glm::distance(edgeStart, edgeEnd) / 2.0f;
+
+        glm::vec2 dir = glm::normalize(edgeEnd - edgeStart);
+
+        edgeStart += dir * edge.getStartNode()->getSize().x;
+        edgeEnd += -dir * edge.getStartNode()->getSize().x;
+
+        float t = glm::dot(position - edgeStart, dir);
+        glm::vec2 closestPoint = edgeStart + glm::clamp(t, 0.0f, glm::distance(edgeStart, edgeEnd)) * dir;
+
+        if (glm::distance(position, closestPoint) < selectionThreshold)
+        {
+            if (glm::distance(position, edgeEnd) < tipThreshold)
+            {
+                std::cout << "Edge end selected, enter a weight:\n";
+                int weight = 0;
+                std::cin >> weight;
+
+                edge.setWeight(weight);
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void GraphEditor::tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
@@ -209,7 +246,7 @@ void GraphEditor::tryAddEdge(GraphNode* edgeStart, GraphNode* edgeEnd)
     }
 
     m_graphData.addEdge(edgeStart, edgeEnd);
-    m_selectedNode = nullptr; // clear selected node after edge is added
+    m_selectedNode = nullptr;
 
     for (const auto& edge : m_graphData.getEdges())
     {
