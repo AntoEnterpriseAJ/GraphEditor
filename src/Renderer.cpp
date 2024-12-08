@@ -5,6 +5,7 @@
 #include "GLFW/glfw3.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"
+#include "ResourceManager.h"
 
 Renderer::Renderer()
     : m_circleVAO{ 0 }, m_circleVBO{ 0 }, m_textRenderer{ "res/fonts/Astron.otf", 40 }
@@ -63,7 +64,7 @@ void Renderer::render(GraphNode* node, Shader& nodeShader, Primitive primitive)
     glBindVertexArray(0);
 }
 
-void Renderer::render(const Edge& edge, Shader& shader, bool oriented) const
+void Renderer::render(const Edge& edge, Shader& shader, bool oriented)
 {
     shader.bind();
 
@@ -110,7 +111,6 @@ void Renderer::render(const Edge& edge, Shader& shader, bool oriented) const
 
     if (oriented)
     {
-
         glm::vec3 arrow1 = glm::vec3{ dir, 0.0f };
         glm::vec3 arrow2 = glm::vec3{ dir, 0.0f };
 
@@ -151,6 +151,13 @@ void Renderer::render(const Edge& edge, Shader& shader, bool oriented) const
 
         glDeleteBuffers(1, &arrowsVBO);
         glDeleteVertexArrays(1, &arrowsVAO);
+    }
+
+    if (edge.isWeighted())
+    {
+        float length = glm::distance(edgeStart, edgeEnd);
+        glm::vec2 textPos = (edgeStart + edgeEnd) / 2.0f + dir * length / 4.0f;
+        renderText(std::to_string(edge.getWeight()), ResourceManager::getShader("text"), textPos);
     }
 }
 

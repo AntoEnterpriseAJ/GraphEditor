@@ -18,7 +18,7 @@ public:
     void renderText(const std::string& text, const Shader& textShader, glm::vec2 pos, bool centered = true
                    , float scale = 1.0f, glm::vec3 color = glm::vec3{ 0.0f, 0.0f, 0.0f });
     void render(GraphNode* node, Shader& nodeShader, Primitive primitive = Primitive::circle);
-    void render(const Edge& edge, Shader& shader, bool oriented) const;
+    void render(const Edge& edge, Shader& shader, bool oriented);
     
 private:
     void initPrimitivesData();
