@@ -64,7 +64,7 @@ void Renderer::render(GraphNode* node, Shader& nodeShader, Primitive primitive)
     glBindVertexArray(0);
 }
 
-void Renderer::render(const Edge& edge, Shader& shader, bool oriented)
+void Renderer::render(const Edge& edge, Shader& shader, bool oriented, bool weighted)
 {
     shader.bind();
 
@@ -153,10 +153,15 @@ void Renderer::render(const Edge& edge, Shader& shader, bool oriented)
         glDeleteVertexArrays(1, &arrowsVAO);
     }
 
-    if (edge.isWeighted())
+    if (weighted)
     {
-        float length = glm::distance(edgeStart, edgeEnd);
-        glm::vec2 textPos = (edgeStart + edgeEnd) / 2.0f + dir * length / 4.0f;
+        glm::vec2 textPos = (edgeStart + edgeEnd) / 2.0f;
+        if (oriented)
+        {
+            float length = glm::distance(edgeStart, edgeEnd);
+            textPos += dir * length / 4.0f;
+        }
+
         renderText(std::to_string(edge.getWeight()), ResourceManager::getShader("text"), textPos);
     }
 }
