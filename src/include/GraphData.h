@@ -14,11 +14,13 @@ public:
     void addNode(GraphNode* node);
     void addEdge(GraphNode* edgeStart, GraphNode* edgeEnd);
     void setOriented(bool oriented);
+    void setWeighted(bool weighted);
     void setLogAdjacency(bool log);
     void clear();
     void undo();
     
     int getSize() const;
+    bool isWeighted() const;
     bool isOriented() const;
     void logAdjacencyMatrix(const std::string& fileName) const;
     std::vector<GraphNode*>& getNodes();
@@ -50,6 +52,7 @@ private:
 private:
     bool m_logAdjacencyMatrix;
     bool m_oriented;
+    bool m_weighted;
     std::stack<Action>                   m_actions;
     std::vector<std::unordered_set<int>> m_adjacencyList;
     std::vector<GraphNode*>              m_nodes;

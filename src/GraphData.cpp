@@ -49,6 +49,11 @@ void GraphData::setOriented(bool oriented)
    updateAdjacencyList();
 }
 
+void GraphData::setWeighted(bool weighted)
+{
+    m_weighted = weighted;
+}
+
 void GraphData::setLogAdjacency(bool log)
 {
     m_logAdjacencyMatrix = log;
@@ -801,6 +806,11 @@ std::vector<unsigned int> GraphData::totalGenericPathTraversal(const GraphNode* 
 int GraphData::getSize() const
 {
     return m_nodes.size();
+}
+
+bool GraphData::isWeighted() const
+{
+    return m_weighted;
 }
 
 bool GraphData::isOriented() const
