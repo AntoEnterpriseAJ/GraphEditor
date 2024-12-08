@@ -42,6 +42,7 @@ public:
     std::vector<unsigned int> totalGenericPathTraversal(const GraphNode* const startNode) const;
 
     const std::vector<Edge>& getEdges() const;
+    std::vector<Edge>& getEdgesRef();
     const std::vector<std::unordered_set<int>>& getAdjacencyList() const;
 
 private:

@@ -114,6 +114,11 @@ const std::vector<Edge>& GraphData::getEdges() const
    return m_edges;
 }
 
+std::vector<Edge>& GraphData::getEdgesRef()
+{
+    return m_edges;
+}
+
 void GraphData::logAdjacencyMatrix(const std::string& fileName) const
 {
    if (!m_logAdjacencyMatrix) return;
