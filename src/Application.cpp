@@ -87,6 +87,8 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
 {
     ImGui::Begin("Graph");
     bool orientedCheckboxState = m_graphEditor.getGraphData().isOriented();
+    bool weightedCheckboxState = m_graphEditor.getGraphData().isWeighted();
+
     if (ImGui::Checkbox("Oriented", &orientedCheckboxState))
     {
         if (orientedCheckboxState)
@@ -98,11 +100,22 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
             m_graphEditor.getGraphData().setOriented(false);
         }
     }
+    if (ImGui::Checkbox("weighted", &weightedCheckboxState))
+    {
+        if (weightedCheckboxState)
+        {
+            m_graphEditor.getGraphData().setWeighted(true);
+        }
+        else
+        {
+            m_graphEditor.getGraphData().setWeighted(false);
+        }
+    }
     if (ImGui::Button("clear"))
     {
         m_graphEditor.getGraphData().clear();
     }
-    if (ImGui::Button("undo"))
+    if (ImGui::Button("undo")) 
     {
         m_graphEditor.getGraphData().undo();
     }
