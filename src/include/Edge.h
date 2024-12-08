@@ -10,9 +10,15 @@ public:
     GraphNode* getStartNode() const;
     GraphNode* getEndNode() const;
 
+    void setWeight(int weight);
+
+    int  getWeight() const;
+    bool isWeighted() const;
     bool operator==(const Edge& other) const;
 
 private:
     GraphNode* m_nodeStart;
     GraphNode* m_nodeEnd;
+    int        m_weight;
+    bool       m_weighted;
 };
