@@ -24,7 +24,7 @@ void GraphEditor::render()
 {
     for (const auto& edge : m_graphData.getEdges())
     {
-        m_renderer.render(edge, ResourceManager::getShader("edge"), m_graphData.isOriented());
+        m_renderer.render(edge, ResourceManager::getShader("edge"), m_graphData.isOriented(), m_graphData.isWeighted());
     }
 
     for (const auto& node : m_graphData.getNodes())
@@ -188,6 +188,11 @@ void GraphEditor::checkNodeSelect(glm::vec2 position)
 
 bool GraphEditor::checkEdgeSelect(glm::vec2 position)
 {
+    if (!m_graphData.isWeighted())
+    {
+        return false;
+    }
+
     constexpr float selectionThreshold = 10.0f;
 
     for (auto& edge : m_graphData.getEdgesRef())
@@ -206,9 +211,19 @@ bool GraphEditor::checkEdgeSelect(glm::vec2 position)
 
         if (glm::distance(position, closestPoint) < selectionThreshold)
         {
-            if (glm::distance(position, edgeEnd) < tipThreshold)
+            if (m_graphData.isOriented() && glm::distance(position, edgeEnd) < tipThreshold)
             {
                 std::cout << "Edge end selected, enter a weight:\n";
+                int weight = 0;
+                std::cin >> weight;
+
+                edge.setWeight(weight);
+                return true;
+            }
+
+            if (!m_graphData.isOriented())
+            {
+                std::cout << "Edge selected, enter a weight:\n";
                 int weight = 0;
                 std::cin >> weight;
 
