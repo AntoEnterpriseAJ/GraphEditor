@@ -76,6 +76,7 @@ void Renderer::render(const Edge& edge, Shader& shader, bool oriented, bool weig
 
     shader.setMat4("model", model);
     shader.setMat4("projection", projection);
+    shader.setVec4("color", edge.getColor());
 
     glm::vec2 edgeStart{ edge.getStartNode()->getPosition().x, edge.getStartNode()->getPosition().y};
     glm::vec2 edgeEnd{ edge.getEndNode()->getPosition().x, edge.getEndNode()->getPosition().y };
