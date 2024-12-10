@@ -317,7 +317,65 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
             std::cout << "The root is: " << root->getInternalID() << "\n";
         }
     }
+    if (ImGui::Button("Generic MST"))
+    {
+        glm::vec4 color = glm::vec4{
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX,
+            1.0f
+        };
 
+        const auto& mst = m_graphEditor.getGraphData().genericMST();
+
+        for (const auto& edge : mst)
+        {
+            std::cout << edge.first << " " << edge.second << "\n";
+        }
+        
+        for (const auto& [start, end] : mst)
+        {
+            m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+        }
+    }
+    if (ImGui::Button("Prim MST"))
+    {
+        glm::vec4 color = glm::vec4{
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX,
+            1.0f
+        };
+        const auto& mst = m_graphEditor.getGraphData().primMST();
+
+        for (const auto& edge : mst)
+        {
+            std::cout << edge.first << " " << edge.second << "\n";
+        }
+
+        for (const auto& [start, end] : mst)
+        {
+            m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+        }
+    }
+    if (ImGui::Button("Kruskal MST"))
+    {
+        glm::vec4 color = glm::vec4{
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX,
+            1.0f
+        };
+        const auto& mst = m_graphEditor.getGraphData().kruskalMST();
+        for (const auto& edge : mst)
+        {
+            std::cout << edge.first << " " << edge.second << "\n";
+        }
+        for (const auto& [start, end] : mst)
+        {
+            m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+        }
+    }
     ImGui::End();
 }
 
