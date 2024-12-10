@@ -15,6 +15,7 @@
 
 GraphData::GraphData()
     : m_oriented{ true }, m_logAdjacencyMatrix{ false }, m_actions {}, m_nodes{}, m_edges{}
+    , m_adjacencyList{}, m_weighted{ false }, m_edgeWeights{}
 {}
 
 GraphData::~GraphData()
@@ -67,10 +68,13 @@ void GraphData::clear()
    }
    m_nodes.clear();
    m_edges.clear();
+   m_edgeWeights.clear();
    logAdjacencyMatrix("res/adjMatrix/adjMatrix.txt");
    updateAdjacencyList();
 }
 
+
+// TODO: integrate edgeWeights
 void GraphData::undo()
 {
    if (!m_actions.empty() && !m_edges.empty() && m_actions.top() == Action::newEdge)
@@ -97,6 +101,11 @@ void GraphData::undo()
 const std::vector<std::unordered_set<int>>& GraphData::getAdjacencyList() const
 {
     return m_adjacencyList;
+}
+
+std::unordered_map<std::pair<int, int>, int, GraphData::PairHash>& GraphData::getEdgeWeights()
+{
+    return m_edgeWeights;
 }
 
 void GraphData::inverseGraph()
@@ -178,6 +187,23 @@ GraphNode* GraphData::getNode(unsigned int nodeID)
     }
 
     throw std::invalid_argument("the node doesn't exist");
+}
+
+Edge* GraphData::getEdgeUnoriented(unsigned int startNodeID, unsigned int endNodeID)
+{
+    for (auto& edge : m_edges)
+    {
+        if (edge.getStartNode()->getInternalID() == startNodeID && edge.getEndNode()->getInternalID() == endNodeID)
+        {
+            return &edge;
+        }
+        else if (!m_oriented && edge.getStartNode()->getInternalID() == endNodeID && edge.getEndNode()->getInternalID() == startNodeID)
+        {
+            return &edge;
+        }
+    }
+
+    return nullptr;
 }
 
 bool GraphData::checkCycles() const
@@ -544,6 +570,187 @@ std::vector<unsigned int> GraphData::DFS(const GraphNode* const startNode) const
     }
 
     return visitedAndAnalyzed;
+}
+
+std::vector<std::pair<int, int>> GraphData::primMST()
+{
+    int n = m_nodes.size();
+    std::unordered_set<int> resultingNodes;
+    std::unordered_map<int, int> lastNode;
+    std::vector<std::pair<int, int>> resultingEdges;
+    std::vector<int> minimumCostToReach(n, std::numeric_limits<int>::max());
+    minimumCostToReach[0] = 0;
+
+    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>> pq;
+    pq.push({ 0, 0 });
+
+    while (resultingNodes.size() < m_nodes.size())
+    {
+        auto [cost, nodeID] = pq.top();
+        pq.pop();
+
+        if (resultingNodes.contains(nodeID))
+        {
+            continue;
+        }
+        resultingNodes.insert(nodeID);
+
+        if (nodeID != 0)
+        {
+            resultingEdges.push_back({ nodeID, lastNode[nodeID] });
+        }
+
+        for (unsigned int adjNodeID : m_adjacencyList[nodeID])
+        {
+            if (resultingNodes.contains(adjNodeID))
+            {
+                continue;
+            }
+
+            int weight = m_edgeWeights[{nodeID, adjNodeID}];
+            if (weight < minimumCostToReach[adjNodeID])
+            {
+                lastNode[adjNodeID] = nodeID;
+                minimumCostToReach[adjNodeID] = weight;
+                pq.push({ weight, adjNodeID });
+            }
+        }
+    }
+
+    return resultingEdges;
+}
+
+std::vector<std::pair<int, int>> GraphData::genericMST()
+{
+    std::unordered_map<unsigned int, std::unordered_set<unsigned int>> components;
+    std::unordered_map<unsigned int, std::vector<std::pair<int, int>>> componentsEdges;
+    for (unsigned int nodeID = 0; nodeID < m_nodes.size(); ++nodeID)
+    {
+        components[nodeID] = { nodeID };
+    }
+
+    std::vector<std::pair<int, int>> resultingEdges;
+    for (int k = 1; k < m_nodes.size(); ++k)
+    {
+        unsigned int currentComponentID = components.begin()->first;
+        std::unordered_set<unsigned int>& currentComponent = components.begin()->second;
+
+        std::pair<int, int> minEdge = { -1, -1 };
+        int minWeight = std::numeric_limits<int>::max();
+        for (unsigned int nodeID : currentComponent)
+        {
+            for (unsigned int adjNodeID : m_adjacencyList[nodeID])
+            {
+                if (currentComponent.contains(adjNodeID))
+                {
+                    continue;
+                }
+
+                int weight = m_edgeWeights[{nodeID, adjNodeID}];
+                if (weight < minWeight)
+                {
+                    minWeight = weight;
+                    minEdge = { nodeID, adjNodeID };
+                }
+            }
+        }
+
+        int outsideComponentID = -1;
+        for (const auto& [componentID, component] : components)
+        {
+            if (component.contains(minEdge.second))
+            {
+                outsideComponentID = componentID;
+                break;
+            }
+        }
+
+        currentComponent.insert(components[outsideComponentID].begin(), components[outsideComponentID].end());
+        components.erase(outsideComponentID);
+
+        componentsEdges[currentComponentID].push_back(minEdge);
+        componentsEdges[currentComponentID].insert(
+            componentsEdges[currentComponentID].end(),
+            componentsEdges[outsideComponentID].begin(),
+            componentsEdges[outsideComponentID].end()
+        );
+
+        componentsEdges[outsideComponentID].clear();
+
+        if (k == m_nodes.size() - 1)
+        {
+            resultingEdges = componentsEdges[currentComponentID];
+            break;
+        }
+    }
+
+    return resultingEdges;
+}
+
+int find(int node, std::vector<int>& parent)
+{
+    if (parent[node] != node)
+    {
+        parent[node] = find(parent[node], parent);
+    }
+    return parent[node];
+}
+
+void unionSets(int node1, int node2, std::vector<int>& parent, std::vector<int>& rank)
+{
+    int root1 = find(node1, parent);
+    int root2 = find(node2, parent);
+
+    if (root1 != root2)
+    {
+        if (rank[root1] > rank[root2])
+        {
+            parent[root2] = root1;
+        }
+        else if (rank[root1] < rank[root2])
+        {
+            parent[root1] = root2;
+        }
+        else
+        {
+            parent[root2] = root1;
+            ++rank[root1];
+        }
+    }
+};
+
+std::vector<std::pair<int, int>> GraphData::kruskalMST()
+{
+    std::vector<std::tuple<int, int, int>> edges;
+    for (const auto& [edge, weight] : m_edgeWeights)
+    {
+        edges.push_back({ weight, edge.first, edge.second });
+    }
+    std::sort(edges.begin(), edges.end());
+
+    std::vector<int> parent(m_nodes.size());
+    std::vector<int> rank(m_nodes.size(), 0);
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+        parent[i] = i;
+    }
+
+    std::vector<std::pair<int, int>> resultingEdges;
+    for (const auto& [weight, node1, node2] : edges)
+    {
+        if (find(node1, parent) != find(node2, parent))
+        {
+            resultingEdges.push_back({ node1, node2 });
+            unionSets(node1, node2, parent, rank);
+
+            if (resultingEdges.size() == m_nodes.size() - 1)
+            {
+                break;
+            }
+        }
+    }
+
+    return resultingEdges;
 }
 
 std::vector<int> GraphData::totalDFS(const GraphNode* const startNode) const
