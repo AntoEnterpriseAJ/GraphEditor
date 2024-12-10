@@ -218,6 +218,8 @@ bool GraphEditor::checkEdgeSelect(glm::vec2 position)
                 std::cin >> weight;
 
                 edge.setWeight(weight);
+                //TODO: undo, clear, ...
+                m_graphData.getEdgeWeights()[{edge.getStartNode()->getInternalID(), edge.getEndNode()->getInternalID()}] = weight;
                 return true;
             }
 
@@ -228,6 +230,8 @@ bool GraphEditor::checkEdgeSelect(glm::vec2 position)
                 std::cin >> weight;
 
                 edge.setWeight(weight);
+                m_graphData.getEdgeWeights()[{edge.getStartNode()->getInternalID(), edge.getEndNode()->getInternalID()}] = weight;
+                m_graphData.getEdgeWeights()[{edge.getEndNode()->getInternalID(), edge.getStartNode()->getInternalID()}] = weight;
                 return true;
             }
         }
