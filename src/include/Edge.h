@@ -9,7 +9,9 @@ public:
 
     GraphNode* getStartNode() const;
     GraphNode* getEndNode() const;
+    glm::vec4  getColor() const;
 
+    void setColor(const glm::vec4& color);
     void setWeight(int weight);
 
     int  getWeight() const;
@@ -18,5 +20,6 @@ public:
 private:
     GraphNode* m_nodeStart;
     GraphNode* m_nodeEnd;
+    glm::vec4  m_color;
     int        m_weight;
 };
