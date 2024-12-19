@@ -36,7 +36,6 @@ public:
     void reconstructGraphFromComponents(const std::vector<std::vector<unsigned int>>& components); // for strongly connected only    
     std::vector<std::vector<unsigned int>> weaklyConnectedComponents(const GraphNode* const startNode);
     std::vector<std::vector<unsigned int>> stronglyConnectedComponents(const GraphNode* const startNode);
-    std::vector<std::vector<unsigned int>> topologicalSort(const GraphNode* const startNode);
 
     std::vector<std::pair<int, int>> primMST();
     std::vector<std::pair<int, int>> genericMST();
@@ -46,6 +45,7 @@ public:
     std::vector<unsigned int> DFS(const GraphNode* const startNode) const;
     std::vector<unsigned int> genericPathTraversal(const GraphNode* const startNode) const;
     std::vector<unsigned int> totalGenericPathTraversal(const GraphNode* const startNode) const;
+    std::vector<unsigned int> topologicalSort(const GraphNode* const startNode);
 
     struct PairHash
     {

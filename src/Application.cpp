@@ -208,7 +208,7 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
 
         if (selectedNode)
         {
-            auto sortedGraph = m_graphEditor.getGraphData().topologicalSort(selectedNode);
+            std::vector<unsigned int> topoSorted = m_graphEditor.getGraphData().topologicalSort(selectedNode);
 
             std::ofstream fout("res/topologicalSort/topoSort.txt");
 
@@ -218,13 +218,10 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
                 return;
             }
 
-            for (const auto& component : sortedGraph)
+            for (unsigned int node : topoSorted)
             {
-                for (unsigned int node : component)
-                {
-                    fout << node << " ";
-                    std::cout << node << " ";
-                }
+                fout << node << " ";
+                std::cout << node << " ";
             }
             std::cout << "\n";
             fout << "\n";
@@ -317,65 +314,70 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
             std::cout << "The root is: " << root->getInternalID() << "\n";
         }
     }
-    if (ImGui::Button("Generic MST"))
+
+    if (m_graphEditor.getGraphData().isWeighted() && !m_graphEditor.getGraphData().isOriented())
     {
-        glm::vec4 color = glm::vec4{
-            static_cast<float>(rand()) / RAND_MAX,
-            static_cast<float>(rand()) / RAND_MAX,
-            static_cast<float>(rand()) / RAND_MAX,
-            1.0f
-        };
-
-        const auto& mst = m_graphEditor.getGraphData().genericMST();
-
-        for (const auto& edge : mst)
+        if (ImGui::Button("Generic MST"))
         {
-            std::cout << edge.first << " " << edge.second << "\n";
-        }
+            glm::vec4 color = glm::vec4{
+                static_cast<float>(rand()) / RAND_MAX,
+                static_cast<float>(rand()) / RAND_MAX,
+                static_cast<float>(rand()) / RAND_MAX,
+                1.0f
+            };
+
+            const auto& mst = m_graphEditor.getGraphData().genericMST();
+
+            for (const auto& edge : mst)
+            {
+                std::cout << edge.first << " " << edge.second << "\n";
+            }
         
-        for (const auto& [start, end] : mst)
-        {
-            m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+            for (const auto& [start, end] : mst)
+            {
+                m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+            }
         }
-    }
-    if (ImGui::Button("Prim MST"))
-    {
-        glm::vec4 color = glm::vec4{
-            static_cast<float>(rand()) / RAND_MAX,
-            static_cast<float>(rand()) / RAND_MAX,
-            static_cast<float>(rand()) / RAND_MAX,
-            1.0f
-        };
-        const auto& mst = m_graphEditor.getGraphData().primMST();
+        if (ImGui::Button("Prim MST"))
+        {
+            glm::vec4 color = glm::vec4{
+                static_cast<float>(rand()) / RAND_MAX,
+                static_cast<float>(rand()) / RAND_MAX,
+                static_cast<float>(rand()) / RAND_MAX,
+                1.0f
+            };
+            const auto& mst = m_graphEditor.getGraphData().primMST();
 
-        for (const auto& edge : mst)
-        {
-            std::cout << edge.first << " " << edge.second << "\n";
-        }
+            for (const auto& edge : mst)
+            {
+                std::cout << edge.first << " " << edge.second << "\n";
+            }
 
-        for (const auto& [start, end] : mst)
+            for (const auto& [start, end] : mst)
+            {
+                m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+            }
+        }
+        if (ImGui::Button("Kruskal MST"))
         {
-            m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+            glm::vec4 color = glm::vec4{
+                static_cast<float>(rand()) / RAND_MAX,
+                static_cast<float>(rand()) / RAND_MAX,
+                static_cast<float>(rand()) / RAND_MAX,
+                1.0f
+            };
+            const auto& mst = m_graphEditor.getGraphData().kruskalMST();
+            for (const auto& edge : mst)
+            {
+                std::cout << edge.first << " " << edge.second << "\n";
+            }
+            for (const auto& [start, end] : mst)
+            {
+                m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+            }
         }
     }
-    if (ImGui::Button("Kruskal MST"))
-    {
-        glm::vec4 color = glm::vec4{
-            static_cast<float>(rand()) / RAND_MAX,
-            static_cast<float>(rand()) / RAND_MAX,
-            static_cast<float>(rand()) / RAND_MAX,
-            1.0f
-        };
-        const auto& mst = m_graphEditor.getGraphData().kruskalMST();
-        for (const auto& edge : mst)
-        {
-            std::cout << edge.first << " " << edge.second << "\n";
-        }
-        for (const auto& [start, end] : mst)
-        {
-            m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
-        }
-    }
+    
     ImGui::End();
 }
 

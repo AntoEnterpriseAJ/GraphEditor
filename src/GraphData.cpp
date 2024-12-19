@@ -852,7 +852,7 @@ std::vector<unsigned int> GraphData::genericPathTraversal(const GraphNode* const
     return visitedAndAnalyzed;
 }
 
-std::vector<std::vector<unsigned int>> GraphData::topologicalSort(const GraphNode* const startNode)
+std::vector<unsigned int> GraphData::topologicalSort(const GraphNode* const startNode)
 {
     if (this->checkCycles())
     {
@@ -874,8 +874,6 @@ std::vector<std::vector<unsigned int>> GraphData::topologicalSort(const GraphNod
             unvisited.insert(nodeID);
         }
     }
-
-    std::vector<std::vector<unsigned int>> components;
 
     while (!unvisited.empty())
     {
@@ -904,19 +902,6 @@ std::vector<std::vector<unsigned int>> GraphData::topologicalSort(const GraphNod
             }
         }
 
-        std::vector<unsigned int> component;
-        component.reserve(visitedAndAnalyzed.size());
-
-        while (!visitedAndAnalyzed.empty())
-        {
-            unsigned int nodeID = visitedAndAnalyzed.top();
-            visitedAndAnalyzed.pop();
-            
-            component.push_back(nodeID);
-        }
-
-        components.push_back(component);
-
         if (!unvisited.empty())
         {
             unsigned int newStartNode = *unvisited.begin();
@@ -924,9 +909,14 @@ std::vector<std::vector<unsigned int>> GraphData::topologicalSort(const GraphNod
         }
     }
 
-    disconnectComponents(components);
+    std::vector<unsigned int> topoSort;
+    while (!visitedAndAnalyzed.empty())
+    {
+        topoSort.push_back(visitedAndAnalyzed.top());
+        visitedAndAnalyzed.pop();
+    }
 
-    return components;
+    return topoSort;
 }
 
 void GraphData::disconnectComponents(const std::vector<std::vector<unsigned int>>& components)
