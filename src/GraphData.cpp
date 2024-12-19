@@ -919,43 +919,6 @@ std::vector<unsigned int> GraphData::topologicalSort(const GraphNode* const star
     return topoSort;
 }
 
-void GraphData::disconnectComponents(const std::vector<std::vector<unsigned int>>& components)
-{
-    std::unordered_map<unsigned int, unsigned int> component_map;
-
-    // Map each nodeID to its componentID
-    for (unsigned int componentID = 0; componentID < components.size(); ++componentID)
-    {
-        for (unsigned int nodeID : components[componentID])
-        {
-            component_map[nodeID] = componentID;
-        }
-    }
-
-    // Collect edges to be removed
-    std::vector<Edge> edges_to_remove;
-
-    for (const auto& edge : m_edges) // Iterate normally (no reverse view here)
-    {
-        unsigned int startNodeID = edge.getStartNode()->getInternalID();
-        unsigned int endNodeID = edge.getEndNode()->getInternalID();
-
-        unsigned int startComponent = component_map[startNodeID];
-        unsigned int endComponent = component_map[endNodeID];
-
-        if (startComponent != endComponent)
-        {
-            edges_to_remove.push_back(edge);
-        }
-    }
-
-    // Remove the edges
-    for (const auto& edge : edges_to_remove)
-    {
-        std::erase(m_edges, edge);
-    }
-}
-
 std::vector<unsigned int> GraphData::totalGenericPathTraversal(const GraphNode* const startNode) const 
 //TODO: fix for one node
 //TOOD: repeat genericPathTraversal for the total
