@@ -15,6 +15,7 @@ Application::Application()
     ImGui_ImplGlfw_InitForOpenGL(glfwGetCurrentContext(), true);
     ImGui_ImplOpenGL3_Init("#version 430");
 
+    ResourceManager::loadShader("res/shaders/circleBatch.vert", "res/shaders/circleBatch.frag", "circleBatch");
     ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
     ResourceManager::loadShader("res/shaders/edge.vert", "res/shaders/edge.frag", "edge");
     ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
@@ -42,7 +43,7 @@ void Application::render()
     }
     else if (m_state == State::Maze)
     {
-        m_Maze.render(Renderer::Primitive::quad);
+        m_Maze.render(Renderer::PrimitiveType::quad);
     }
     else if (m_state == State::Map)
     {
