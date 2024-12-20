@@ -23,15 +23,13 @@ MapEditor::MapEditor()
 
 void MapEditor::render()
 {
+    m_renderer.clearEdgeBatch();
+
     for (const auto& edge : m_graphData.getEdges())
     {
-        m_renderer.render(edge, ResourceManager::getShader("edge"), false, m_graphData.isWeighted());
+        m_renderer.addEdgeToBatch(edge);
     }
-
-    //for (const auto& node : m_graphData.getNodes())
-    //{
-    //    m_renderer.render(node, ResourceManager::getShader("circle"));
-    //}
+    m_renderer.edgeInstanceRender(ResourceManager::getShader("edge"));
 }
 
 static bool pressed = false;
@@ -72,6 +70,11 @@ static double maxLongitude = std::numeric_limits<double>::lowest();
 
 void MapEditor::loadFromFile(const std::string& filePath)
 {
+    m_graphData.clear();
+    m_selectedNode = nullptr;
+    //m_renderer.clearEdgeBatch();
+    m_renderer.clearNodeBatch();
+
     pugi::xml_document doc;
     if (!doc.load_file(filePath.c_str()))
     {
