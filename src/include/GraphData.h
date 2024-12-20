@@ -36,6 +36,8 @@ public:
     std::vector<std::vector<unsigned int>> weaklyConnectedComponents(const GraphNode* const startNode);
     std::vector<std::vector<unsigned int>> stronglyConnectedComponents(const GraphNode* const startNode);
 
+    std::vector<unsigned int> djikstraMinimumCost(const GraphNode* const startNode, const GraphNode* const endNode);
+
     std::vector<std::pair<int, int>> primMST();
     std::vector<std::pair<int, int>> genericMST();
     std::vector<std::pair<int, int>> kruskalMST();
@@ -46,6 +48,7 @@ public:
     std::vector<unsigned int> totalGenericPathTraversal(const GraphNode* const startNode) const;
     std::vector<unsigned int> topologicalSort(const GraphNode* const startNode);
 
+
     struct PairHash
     {
         int operator()(const std::pair<int, int>& p) const
@@ -54,13 +57,12 @@ public:
         }
     };
 
+    void updateAdjacencyList();
     const std::vector<Edge>& getEdges() const;
     std::vector<Edge>& getEdgesRef();
     const std::vector<std::unordered_set<int>>& getAdjacencyList() const;
     std::unordered_map<std::pair<int, int>, int, PairHash>& getEdgeWeights();
 
-private:
-    void updateAdjacencyList();
 private:
     bool m_logAdjacencyMatrix;
     bool m_oriented;
