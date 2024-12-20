@@ -16,7 +16,7 @@ public:
 
     MazeEditor();
 
-    void render(Renderer::Primitive nodePrimitive = Renderer::Primitive::circle);
+    void render(Renderer::PrimitiveType nodePrimitive = Renderer::PrimitiveType::circle);
 
     void loadFromFile(const std::string& filePath);
 
