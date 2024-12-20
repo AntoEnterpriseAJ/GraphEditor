@@ -103,7 +103,7 @@ void Renderer::render(const Edge& edge, Shader& shader, bool oriented, bool weig
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(edgeVAO);
-    glLineWidth(6.0f);
+    glLineWidth(edge.getSize());
     glDrawArrays(GL_LINES, 0, 2);
     glLineWidth(1.0f);
 
@@ -145,7 +145,7 @@ void Renderer::render(const Edge& edge, Shader& shader, bool oriented, bool weig
         glEnableVertexAttribArray(0);
 
         glBindVertexArray(arrowsVAO);
-        glLineWidth(6.0f);
+        glLineWidth(edge.getSize());
         glDrawArrays(GL_LINES, 0, 4);
         glLineWidth(1.0f);
         glBindVertexArray(0);
