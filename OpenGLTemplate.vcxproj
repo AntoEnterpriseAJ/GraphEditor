@@ -150,7 +150,9 @@
     <ClCompile Include="src\GraphData.cpp" />
     <ClCompile Include="src\GraphNode.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\MapEditor.cpp" />
     <ClCompile Include="src\MazeEditor.cpp" />
+    <ClCompile Include="src\pugixml.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -165,6 +167,7 @@
     <ClInclude Include="src\include\Edge.h" />
     <ClInclude Include="src\include\GraphData.h" />
     <ClInclude Include="src\include\GraphNode.h" />
+    <ClInclude Include="src\include\MapEditor.h" />
     <ClInclude Include="src\include\MazeEditor.h" />
     <ClInclude Include="src\include\Renderer.h" />
     <ClInclude Include="src\include\ResourceManager.h" />
@@ -178,6 +181,9 @@
   <ItemGroup>
     <None Include="res\shaders\edge.frag" />
     <None Include="res\shaders\edge.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="C:\Users\Anto\Downloads\Harta_Luxemburg.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
