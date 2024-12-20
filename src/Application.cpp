@@ -44,6 +44,10 @@ void Application::render()
     {
         m_Maze.render(Renderer::Primitive::quad);
     }
+    else if (m_state == State::Map)
+    {
+        m_map.render();
+    }
 
     renderUI();
 
@@ -77,6 +81,10 @@ void Application::renderUI()
     else if (m_state == State::Maze)
     {
         renderMazeUI();
+    }
+    else if (m_state == State::Map)
+    {
+        renderMapUI();
     }
 
     ImGui::Render();
@@ -378,11 +386,34 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
         }
     }
     
+    if (m_graphEditor.getGraphData().isWeighted() && m_graphEditor.getGraphData().isOriented())
+    {
+        if (ImGui::Button("Djikstra"))
+        {
+            unsigned int startNodeID;
+            std::cout << "start nodeID: ";
+            std::cin >> startNodeID;
+            const GraphNode* startNode = m_graphEditor.getGraphData().getNode(startNodeID);
+
+            unsigned int endNodeID;
+            std::cout << "start nodeID: ";
+            std::cin >> endNodeID;
+            const GraphNode* endNode = m_graphEditor.getGraphData().getNode(endNodeID);
+
+            std::vector<unsigned int> minPath = m_graphEditor.getGraphData().djikstraMinimumCost(startNode, endNode);
+            for (unsigned int nodeID : minPath)
+            {
+                std::cout << nodeID << "\n";
+            }
+            std::cout << "\n";
+        }
+    }
+
+
     ImGui::End();
 }
 
 static std::string mazeFilePath{"res/maze/maze.txt"};
-
 void Application::renderMazeUI()
 {
     ImGui::Begin("Maze");
@@ -395,6 +426,23 @@ void Application::renderMazeUI()
     if (ImGui::Button("solve"))
     {
         m_Maze.solveMaze();
+    }
+
+    ImGui::End();
+}
+
+static std::string mapFilePath{"res/map/Harta_Luxemburg.xml"};
+void Application::renderMapUI()
+{
+    ImGui::Begin("Map");
+
+    ImGui::InputText("Map file path", mapFilePath.data(), ImGuiInputTextFlags_EnterReturnsTrue);
+    if (ImGui::Button("load map"))
+    {
+        m_map.loadFromFile(mapFilePath);
+    }
+    if (ImGui::Button("solve"))
+    {
     }
 
     ImGui::End();
@@ -415,6 +463,12 @@ void Application::renderToolbar()
     if (ImGui::Button("Maze"))
     {
         m_state = State::Maze;
+    }
+    ImGui::SameLine();
+
+    if (ImGui::Button("Map"))
+    {
+        m_state = State::Map;
     }
 
     ImGui::End();
