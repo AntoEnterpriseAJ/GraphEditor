@@ -7,7 +7,7 @@ MazeEditor::MazeEditor()
     : m_graphData{}, m_renderer{}
 {}
 
-void MazeEditor::render(Renderer::Primitive nodePrimitive)
+void MazeEditor::render(Renderer::PrimitiveType nodePrimitive)
 {
     for (const auto& node : m_graphData.getNodes())
     {
