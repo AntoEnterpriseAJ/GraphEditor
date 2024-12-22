@@ -164,12 +164,6 @@ void MapEditor::findMinDistance()
     }
 
     std::vector<unsigned int> minPath{m_graphData.djikstraMinimumCost(m_leftClickSelectedNode, m_rightClickSelectedNode)};
-    //std::cout << "minPath:\n";
-    //for (unsigned int nodeID : minPath)
-    //{
-    //    std::cout << nodeID << " ";
-    //}
-    //std::cout << "\n";
 
     for (int index = 0; index < minPath.size() - 1; ++index)
     {
