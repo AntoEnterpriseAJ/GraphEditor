@@ -221,17 +221,28 @@ void Renderer::addEdgeToBatch(const Edge& edge)
 {
     glm::vec2 startPos = edge.getStartNode()->getPosition();
     glm::vec2 endPos = edge.getEndNode()->getPosition();
+    glm::vec4 edgeColor = edge.getColor();
 
     m_linesData.push_back(startPos.x);
     m_linesData.push_back(startPos.y);
     m_linesData.push_back(endPos.x);
     m_linesData.push_back(endPos.y);
+
+    m_linesColor.push_back(edgeColor.r);
+    m_linesColor.push_back(edgeColor.g);
+    m_linesColor.push_back(edgeColor.b);
+    m_linesColor.push_back(edgeColor.a);
+    m_linesColor.push_back(edgeColor.r);
+    m_linesColor.push_back(edgeColor.g);
+    m_linesColor.push_back(edgeColor.b);
+    m_linesColor.push_back(edgeColor.a);
 }
 
 
 void Renderer::clearEdgeBatch()
 {
     m_linesData.clear();
+    m_linesColor.clear();
 }
 
 void Renderer::edgeInstanceRender(Shader& shader)
@@ -240,6 +251,15 @@ void Renderer::edgeInstanceRender(Shader& shader)
 
     glBindBuffer(GL_ARRAY_BUFFER, m_line.VBO);
     glBufferData(GL_ARRAY_BUFFER, m_linesData.size() * sizeof(float), m_linesData.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_linesColorVBO);
+    glBufferData(GL_ARRAY_BUFFER, m_linesColor.size() * sizeof(float), m_linesColor.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 
     glm::mat4 model{1.0f};
 
@@ -261,6 +281,7 @@ void Renderer::initPrimitivesData()
 {
     glGenBuffers(1, &m_circleTranslationsVBO);
     glGenBuffers(1, &m_linesDataVBO);
+    glGenBuffers(1, &m_linesColorVBO);
 
     initCircleData();
     initQuadData();

@@ -38,7 +38,6 @@ public:
     void clearEdgeBatch();
     void edgeInstanceRender(Shader& shader);
 
-
 private:
     void initPrimitivesData();
     void initCircleData();
@@ -52,6 +51,9 @@ private:
 
     unsigned int m_linesDataVBO;
     std::vector<float> m_linesData;
+
+    unsigned int m_linesColorVBO;
+    std::vector<float> m_linesColor;
 
     unsigned int m_circleTranslationsVBO;
     std::vector<glm::mat4> m_circleTranslations;
