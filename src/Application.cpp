@@ -16,6 +16,7 @@ Application::Application()
     ImGui_ImplOpenGL3_Init("#version 430");
 
     ResourceManager::loadShader("res/shaders/circleBatch.vert", "res/shaders/circleBatch.frag", "circleBatch");
+    ResourceManager::loadShader("res/shaders/edgeBatch.vert", "res/shaders/edgeBatch.frag", "edgeBatch");
     ResourceManager::loadShader("res/shaders/circle.vert", "res/shaders/circle.frag", "circle");
     ResourceManager::loadShader("res/shaders/edge.vert", "res/shaders/edge.frag", "edge");
     ResourceManager::loadShader("res/shaders/text.vert", "res/shaders/text.frag", "text");
@@ -48,6 +49,7 @@ void Application::render()
     else if (m_state == State::Map)
     {
         m_map.render();
+        m_map.handleInput();
     }
 
     renderUI();
@@ -344,7 +346,7 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
         
             for (const auto& [start, end] : mst)
             {
-                m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+                m_graphEditor.getGraphData().getEdge(start, end)->setColor(color);
             }
         }
         if (ImGui::Button("Prim MST"))
@@ -364,7 +366,7 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
 
             for (const auto& [start, end] : mst)
             {
-                m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+                m_graphEditor.getGraphData().getEdge(start, end)->setColor(color);
             }
         }
         if (ImGui::Button("Kruskal MST"))
@@ -382,7 +384,7 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
             }
             for (const auto& [start, end] : mst)
             {
-                m_graphEditor.getGraphData().getEdgeUnoriented(start, end)->setColor(color);
+                m_graphEditor.getGraphData().getEdge(start, end)->setColor(color);
             }
         }
     }
@@ -444,6 +446,7 @@ void Application::renderMapUI()
     }
     if (ImGui::Button("solve"))
     {
+        m_map.findMinDistance();
     }
 
     ImGui::End();
