@@ -25,7 +25,7 @@ public:
     void logAdjacencyMatrix(const std::string& fileName) const;
     std::vector<GraphNode*>& getNodes();
     GraphNode* getNode(unsigned int nodeID);
-    Edge* getEdgeUnoriented(unsigned int startNodeID, unsigned int endNodeID);
+    Edge* getEdge(unsigned int startNodeID, unsigned int endNodeID);
     void inverseGraph();
 
     GraphNode* findRoot();

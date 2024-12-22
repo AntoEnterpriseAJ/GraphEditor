@@ -189,7 +189,7 @@ GraphNode* GraphData::getNode(unsigned int nodeID)
     throw std::invalid_argument("the node doesn't exist");
 }
 
-Edge* GraphData::getEdgeUnoriented(unsigned int startNodeID, unsigned int endNodeID)
+Edge* GraphData::getEdge(unsigned int startNodeID, unsigned int endNodeID)
 {
     for (auto& edge : m_edges)
     {
