@@ -14,6 +14,7 @@ public:
     void handleInput();
 
     void loadFromFile(const std::string& filePath);
+    void findMinDistance();
 
     GraphData& getGraphData();
     const GraphNode* const getSelectedNode() const;
@@ -25,7 +26,9 @@ private:
 private:
     static constexpr float kNodeRadius = 30.0f;
 private:
-    GraphNode* m_selectedNode;
+    GraphNode* m_leftClickSelectedNode;
+    GraphNode* m_rightClickSelectedNode;
+
     GraphData m_graphData;
     Renderer m_renderer;
 };

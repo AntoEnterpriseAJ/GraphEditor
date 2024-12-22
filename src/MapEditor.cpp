@@ -16,7 +16,7 @@
 #endif
 
 MapEditor::MapEditor()
-    : m_graphData{}, m_renderer{}, m_selectedNode{nullptr}
+    : m_graphData{}, m_renderer{}, m_leftClickSelectedNode{nullptr}
 {
     m_graphData.setLogAdjacency(true);
 }
@@ -29,13 +29,8 @@ void MapEditor::render()
     {
         m_renderer.addEdgeToBatch(edge);
     }
-    m_renderer.edgeInstanceRender(ResourceManager::getShader("edge"));
+    m_renderer.edgeInstanceRender(ResourceManager::getShader("edgeBatch")); 
 }
-
-static bool pressed = false;
-static bool longClick = false;
-static float pressStartTime = 0.0f;
-static float holdThreshold = 0.35f;
 
 void MapEditor::handleInput()
 {
@@ -56,23 +51,42 @@ void MapEditor::handleInput()
         {
             if (glm::distance(node->getPosition(), glm::vec2{ xPos, yPos }) <= node->getSize().x)
             {
-                m_selectedNode = node;
+                m_leftClickSelectedNode = node;
+                std::cout << "Left click. Selected node. id:" << node->getInternalID() << ", pos: " 
+                          << node->getPosition().x << ", " << node->getPosition().y << "\n"; 
+                break;
+            }
+        }
+    }
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+    {
+        double xPos, yPos;
+        glfwGetCursorPos(window, &xPos, &yPos);
+
+        for (auto& node : m_graphData.getNodes())
+        {
+            if (glm::distance(node->getPosition(), glm::vec2{ xPos, yPos }) <= node->getSize().x)
+            {
+                m_rightClickSelectedNode = node;
+                std::cout << "Right click. Selected node. id:" << node->getInternalID() << ", pos: " 
+                          << node->getPosition().x << ", " << node->getPosition().y << "\n"; 
                 break;
             }
         }
     }
 }
 
-static double minLatitude = std::numeric_limits<double>::max();
-static double maxLatitude = std::numeric_limits<double>::lowest();
+static double minLatitude  = std::numeric_limits<double>::max();
+static double maxLatitude  = std::numeric_limits<double>::lowest();
 static double minLongitude = std::numeric_limits<double>::max();
 static double maxLongitude = std::numeric_limits<double>::lowest();
 
 void MapEditor::loadFromFile(const std::string& filePath)
 {
     m_graphData.clear();
-    m_selectedNode = nullptr;
-    //m_renderer.clearEdgeBatch();
+    m_leftClickSelectedNode = nullptr;
+    m_renderer.clearEdgeBatch();
     m_renderer.clearNodeBatch();
 
     pugi::xml_document doc;
@@ -136,6 +150,34 @@ void MapEditor::loadFromFile(const std::string& filePath)
     std::cout << "done\n";
 }
 
+void MapEditor::findMinDistance()
+{
+    if (!m_leftClickSelectedNode)
+    {
+        std::cout << "No start position selected\n";
+        return;
+    }
+    if (!m_rightClickSelectedNode)
+    {
+        std::cout << "No end position selected\n";
+        return;
+    }
+
+    std::vector<unsigned int> minPath{m_graphData.djikstraMinimumCost(m_leftClickSelectedNode, m_rightClickSelectedNode)};
+    //std::cout << "minPath:\n";
+    //for (unsigned int nodeID : minPath)
+    //{
+    //    std::cout << nodeID << " ";
+    //}
+    //std::cout << "\n";
+
+    for (int index = 0; index < minPath.size() - 1; ++index)
+    {
+        auto edge{m_graphData.getEdge(minPath[index], minPath[index + 1])};
+        edge->setColor(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
+    }
+}
+
 GraphData& MapEditor::getGraphData()
 {
     return m_graphData;
@@ -143,12 +185,12 @@ GraphData& MapEditor::getGraphData()
 
 const GraphNode* const MapEditor::getSelectedNode() const
 {
-    return m_selectedNode;
+    return m_leftClickSelectedNode;
 }
 
 void MapEditor::setSelectedNode(GraphNode* node)
 {
-    m_selectedNode = node;
+    m_leftClickSelectedNode = node;
 }
 
 static GraphNode* edgeStart;
@@ -171,9 +213,9 @@ void MapEditor::checkNodeSelect(glm::vec2 position)
         }
 
         LOG("node selected\n");
-        m_selectedNode = node;
+        m_leftClickSelectedNode = node;
         edgeStart = node;
         return;
     }
-    m_selectedNode = nullptr;
+    m_leftClickSelectedNode = nullptr;
 }
