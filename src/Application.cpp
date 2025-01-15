@@ -403,7 +403,7 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
             std::cin >> endNodeID;
             const GraphNode* endNode = m_graphEditor.getGraphData().getNode(endNodeID);
 
-            std::vector<unsigned int> minPath = m_graphEditor.getGraphData().djikstraMinimumCost(startNode, endNode);
+            std::vector<unsigned int> minPath = m_graphEditor.getGraphData().dijkstraMinimumCost(startNode, endNode);
             for (unsigned int nodeID : minPath)
             {
                 std::cout << nodeID << "\n";
