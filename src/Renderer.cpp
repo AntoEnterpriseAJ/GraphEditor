@@ -219,14 +219,19 @@ void Renderer::nodeInstanceRender(Shader& shader)
 
 void Renderer::addEdgeToBatch(const Edge& edge)
 {
-    glm::vec2 startPos = edge.getStartNode()->getPosition();
-    glm::vec2 endPos = edge.getEndNode()->getPosition();
-    glm::vec4 edgeColor = edge.getColor();
+    float edgeDepth = edge.getDepth();
+
+
+    glm::vec3 startPos  { edge.getStartNode()->getPosition(), edgeDepth };
+    glm::vec3 endPos    { edge.getEndNode()->getPosition(), edgeDepth };
+    glm::vec4 edgeColor { edge.getColor() };
 
     m_linesData.push_back(startPos.x);
     m_linesData.push_back(startPos.y);
+    m_linesData.push_back(startPos.z);
     m_linesData.push_back(endPos.x);
     m_linesData.push_back(endPos.y);
+    m_linesData.push_back(endPos.z);
 
     m_linesColor.push_back(edgeColor.r);
     m_linesColor.push_back(edgeColor.g);
@@ -237,7 +242,6 @@ void Renderer::addEdgeToBatch(const Edge& edge)
     m_linesColor.push_back(edgeColor.b);
     m_linesColor.push_back(edgeColor.a);
 }
-
 
 void Renderer::clearEdgeBatch()
 {
@@ -247,12 +251,13 @@ void Renderer::clearEdgeBatch()
 
 void Renderer::edgeInstanceRender(Shader& shader)
 {
+    shader.bind();
     glBindVertexArray(m_line.VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_line.VBO);
     glBufferData(GL_ARRAY_BUFFER, m_linesData.size() * sizeof(float), m_linesData.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_linesColorVBO);
@@ -263,7 +268,6 @@ void Renderer::edgeInstanceRender(Shader& shader)
 
     glm::mat4 model{1.0f};
 
-    shader.bind();
     int width, height;
     glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
@@ -271,7 +275,7 @@ void Renderer::edgeInstanceRender(Shader& shader)
     shader.setMat4("model", model);
 
     glLineWidth(0.1f);
-    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_linesData.size() / 2));
+    glDrawArrays(GL_LINES, 0, m_linesData.size() / 2);
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
