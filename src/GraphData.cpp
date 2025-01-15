@@ -434,71 +434,57 @@ std::vector<std::vector<unsigned int>> GraphData::stronglyConnectedComponents(co
     return components;
 }
 
-std::vector<unsigned int> GraphData::djikstraMinimumCost(const GraphNode* const startNode, const GraphNode* const endNode)
+std::vector<unsigned int> GraphData::dijkstraMinimumCost(const GraphNode* const startNode, const GraphNode* const endNode)
 {
-    unsigned int inf = std::numeric_limits<unsigned int>::max();
-    unsigned int startNodeID = startNode->getInternalID();
-    unsigned int endNodeID   = endNode->getInternalID();
+    const unsigned int inf = std::numeric_limits<unsigned int>::max();
+    const unsigned int startNodeID = startNode->getInternalID();
+    const unsigned int endNodeID = endNode->getInternalID();
 
-    std::vector<int> parents(m_nodes.size());
-    std::unordered_set<unsigned int> unvisited;
-    std::vector<unsigned int> costs(m_nodes.size());
-    for (unsigned int nodeID = 0; nodeID < m_nodes.size(); ++nodeID)
-    { 
-        parents[nodeID] = -1;
-        unvisited.insert(nodeID);
-        costs[nodeID] = inf;
-    }
+    using Pair = std::pair<unsigned int, unsigned int>;
+    std::priority_queue<Pair, std::vector<Pair>, std::greater<>> pq;
 
-    using Node = std::pair<unsigned int, unsigned int>;
-    auto cmp = [](const Node& a, const Node& b) { return a.first > b.first; };
-    std::priority_queue<Node, std::vector<Node>, decltype(cmp)> prioQueue(cmp);
-    prioQueue.push({0, startNodeID});
+    std::vector<unsigned int> costs(m_nodes.size(), inf);
+    std::vector<int> parents(m_nodes.size(), -1);
 
-    while (!prioQueue.empty())
+    costs[startNodeID] = 0;
+    pq.emplace(0, startNodeID);
+
+    while (!pq.empty())
     {
-        Node nodeToCheck{};
-        while (!unvisited.contains(nodeToCheck.second) && !prioQueue.empty())
+        auto [currentCost, currentNode] = pq.top();
+        pq.pop();
+
+        if (currentCost > costs[currentNode])
+            continue;
+
+        for (int adjNodeID : m_adjacencyList[currentNode])
         {
-            nodeToCheck = prioQueue.top();
-            prioQueue.pop();
-        }
+            unsigned int edgeWeight = m_edgeWeights[{currentNode, adjNodeID}];
+            unsigned int newCost = costs[currentNode] + edgeWeight;
 
-        auto [cost, ID] = nodeToCheck;
-        unvisited.erase(ID);
-
-        for (unsigned int adjNodeID : m_adjacencyList[ID])
-        {
-            if (!unvisited.contains(adjNodeID))
-                continue;
-
-            if (costs[adjNodeID] > cost + m_edgeWeights[{ID, adjNodeID}])
+            if (newCost < costs[adjNodeID])
             {
-                parents[adjNodeID] = ID;
-                costs[adjNodeID]   = cost + m_edgeWeights[{ID, adjNodeID}];
+                costs[adjNodeID] = newCost;
+                parents[adjNodeID] = currentNode;
+                pq.emplace(newCost, adjNodeID);
             }
-
-            prioQueue.push({costs[adjNodeID], adjNodeID});
         }
     }
-
-    std::stack<unsigned int> minPath;
-    minPath.push(endNodeID);
-    do
-    {
-        minPath.push(parents[minPath.top()]);
-    } while (parents[minPath.top()] != -1);
 
     std::vector<unsigned int> path;
-    while (!minPath.empty())
+    for (unsigned int node = endNodeID; node != static_cast<unsigned int>(-1); node = parents[node])
     {
-        path.push_back(minPath.top());
-        minPath.pop();
+        path.push_back(node);
+        if (node == startNodeID) break;
     }
-    
+
+    std::reverse(path.begin(), path.end());
+
+    if (path.empty() || path.front() != startNodeID)
+        return {};
+
     return path;
 }
-
 
 std::vector<std::vector<unsigned int>> GraphData::weaklyConnectedComponents(const GraphNode* const startNode)
 {

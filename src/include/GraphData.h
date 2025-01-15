@@ -36,7 +36,7 @@ public:
     std::vector<std::vector<unsigned int>> weaklyConnectedComponents(const GraphNode* const startNode);
     std::vector<std::vector<unsigned int>> stronglyConnectedComponents(const GraphNode* const startNode);
 
-    std::vector<unsigned int> djikstraMinimumCost(const GraphNode* const startNode, const GraphNode* const endNode);
+    std::vector<unsigned int> dijkstraMinimumCost(const GraphNode* const startNode, const GraphNode* const endNode);
 
     std::vector<std::pair<int, int>> primMST();
     std::vector<std::pair<int, int>> genericMST();
