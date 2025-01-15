@@ -133,7 +133,4 @@
     <None Include="res\shaders\edge.frag" />
     <None Include="res\shaders\edge.vert" />
   </ItemGroup>
-  <ItemGroup>
-    <Xml Include="C:\Users\Anto\Downloads\Harta_Luxemburg.xml" />
-  </ItemGroup>
 </Project>
