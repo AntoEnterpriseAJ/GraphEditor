@@ -27,7 +27,18 @@ void MapEditor::render()
 
     for (const auto& edge : m_graphData.getEdges())
     {
-        m_renderer.addEdgeToBatch(edge);
+        if (edge.getDepth() == 0.9f)
+        {
+            m_renderer.addEdgeToBatch(edge);
+        }
+    }
+
+    for (const auto& edge : m_graphData.getEdges())
+    {
+        if (edge.getDepth() != 0.9f)
+        {
+            m_renderer.addEdgeToBatch(edge);
+        }
     }
     m_renderer.edgeInstanceRender(ResourceManager::getShader("edgeBatch")); 
 }
@@ -163,12 +174,13 @@ void MapEditor::findMinDistance()
         return;
     }
 
-    std::vector<unsigned int> minPath{m_graphData.djikstraMinimumCost(m_leftClickSelectedNode, m_rightClickSelectedNode)};
+    std::vector<unsigned int> minPath{m_graphData.dijkstraMinimumCost(m_leftClickSelectedNode, m_rightClickSelectedNode)};
 
     for (int index = 0; index < minPath.size() - 1; ++index)
     {
         auto edge{m_graphData.getEdge(minPath[index], minPath[index + 1])};
         edge->setColor(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
+        edge->setDepth(0.5f);
     }
 }
 
