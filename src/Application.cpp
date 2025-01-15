@@ -410,6 +410,27 @@ void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
             }
             std::cout << "\n";
         }
+        if (ImGui::Button("Ford Fulkerson"))
+        {
+            unsigned int sourceNodeID;
+            std::cout << "source nodeID: ";
+            std::cin >> sourceNodeID;
+            const GraphNode* sourceNode = m_graphEditor.getGraphData().getNode(sourceNodeID);
+
+            unsigned int sinkNodeID;
+            std::cout << "sink nodeID: ";
+            std::cin >> sinkNodeID;
+            const GraphNode* sinkNode = m_graphEditor.getGraphData().getNode(sinkNodeID);
+
+            auto [minCut, maxFlow] = m_graphEditor.getGraphData().fordFulkersonMinCut(sourceNode, sinkNode);
+            for (const auto& [start, end] : minCut)
+            {
+                std::cout << start << " " << end << "\n";
+                auto edge = m_graphEditor.getGraphData().getEdge(start, end);
+                edge->setColor(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
+            }
+            std::cout << "The max flow is " << maxFlow << "\n";
+        }
     }
 
 
