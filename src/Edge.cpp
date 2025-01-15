@@ -2,7 +2,7 @@
 
 Edge::Edge(GraphNode* nodeStart, GraphNode* nodeEnd, int weight, float size)
     : m_nodeEnd{ nodeEnd }, m_nodeStart{ nodeStart }, m_weight{ weight }
-    , m_color{ 1.0f, 0.0f, 0.0f, 1.0f }, m_size{size}
+    , m_color{ 1.0f, 0.0f, 0.0f, 1.0f }, m_size{ size }, m_depth{ kDefaultDepth }
 {}
 
 GraphNode* Edge::getStartNode() const
@@ -33,6 +33,16 @@ void Edge::setColor(const glm::vec4& color)
 void Edge::setWeight(int weight)
 {
     m_weight = weight;
+}
+
+void Edge::setDepth(float depth)
+{
+    m_depth = depth;
+}
+
+float Edge::getDepth() const
+{
+    return m_depth;
 }
 
 int Edge::getWeight() const
