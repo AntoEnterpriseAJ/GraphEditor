@@ -8,6 +8,14 @@
 class GraphData
 {
 public:
+    struct PairHash
+    {
+        int operator()(const std::pair<int, int>& p) const
+        {
+            return p.first ^ p.second;
+        }
+    };
+public:
     GraphData();
     ~GraphData();
 
@@ -41,6 +49,21 @@ public:
     std::vector<std::pair<int, int>> primMST();
     std::vector<std::pair<int, int>> genericMST();
     std::vector<std::pair<int, int>> kruskalMST();
+    std::pair<std::vector<std::pair<int, int>>, int> fordFulkersonMinCut(
+        const GraphNode* const sourceNode,
+        const GraphNode* const sinkNode
+    );
+    unsigned int bfsFindAugmentingPath(
+        unsigned int sourceID,
+        unsigned int sinkID,
+        const std::unordered_map<std::pair<int, int>, int, PairHash>& residualCapacities,
+        std::vector<int>& parent
+    );
+    void bfsReachableNodes(
+        unsigned int sourceID,
+        const std::unordered_map<std::pair<int, int>, int, GraphData::PairHash>& residualCapacities,
+        std::unordered_set<unsigned int>& reachable
+    );
     std::vector<int>          totalDFS(const GraphNode* const startNode) const;
     std::vector<unsigned int> BFS(const GraphNode* const startNode) const;
     std::vector<unsigned int> DFS(const GraphNode* const startNode) const;
@@ -49,13 +72,7 @@ public:
     std::vector<unsigned int> topologicalSort(const GraphNode* const startNode);
 
 
-    struct PairHash
-    {
-        int operator()(const std::pair<int, int>& p) const
-        {
-            return p.first ^ p.second;
-        }
-    };
+
 
     void updateAdjacencyList();
     const std::vector<Edge>& getEdges() const;

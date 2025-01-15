@@ -624,6 +624,131 @@ std::vector<unsigned int> GraphData::DFS(const GraphNode* const startNode) const
     return visitedAndAnalyzed;
 }
 
+std::pair<std::vector<std::pair<int, int>>, int> GraphData::fordFulkersonMinCut(const GraphNode* const sourceNode, const GraphNode* const sinkNode)
+{
+    unsigned int sourceID = sourceNode->getInternalID();
+    unsigned int sinkID = sinkNode->getInternalID();
+
+    std::unordered_map<std::pair<int, int>, int, GraphData::PairHash> residualCapacities = m_edgeWeights;
+
+    unsigned int maxFlow = 0;
+    while (true)
+    {
+        std::vector<int> parent(m_nodes.size(), -1);
+        unsigned int pathFlow = bfsFindAugmentingPath(sourceID, sinkID, residualCapacities, parent);
+
+        if (pathFlow == 0)
+            break;
+
+        unsigned int current = sinkID;
+        while (current != sourceID)
+        {
+            unsigned int previous = parent[current];
+            residualCapacities[{previous, current}] -= pathFlow;
+            residualCapacities[{current, previous}] += pathFlow;
+            current = previous;
+        }
+
+        maxFlow += pathFlow;
+    }
+
+    std::unordered_set<unsigned int> reachable;
+    bfsReachableNodes(sourceID, residualCapacities, reachable);
+
+    std::vector<std::pair<int, int>> minCutEdges;
+    for (unsigned int u = 0; u < m_nodes.size(); ++u)
+    {
+        if (reachable.contains(u))
+        {
+            for (unsigned int v : m_adjacencyList[u])
+            {
+                if (!reachable.contains(v) && m_edgeWeights[{u, v}] > 0)
+                {
+                    minCutEdges.emplace_back(u, v);
+                }
+            }
+        }
+    }
+
+    return { minCutEdges, maxFlow };
+}
+
+void GraphData::bfsReachableNodes(
+    unsigned int sourceID,
+    const std::unordered_map<std::pair<int, int>, int, GraphData::PairHash>& residualCapacities,
+    std::unordered_set<unsigned int>& reachable)
+{
+    std::queue<unsigned int> queue;
+    std::vector<bool> visited(m_nodes.size(), false);
+
+    queue.push(sourceID);
+    visited[sourceID] = true;
+
+    while (!queue.empty())
+    {
+        unsigned int current = queue.front();
+        queue.pop();
+
+        reachable.insert(current);
+
+        for (unsigned int adj : m_adjacencyList[current])
+        {
+            if (!visited[adj] && residualCapacities.at({ current, adj }) > 0)
+            {
+                queue.push(adj);
+                visited[adj] = true;
+            }
+        }
+    }
+}
+
+unsigned int GraphData::bfsFindAugmentingPath(
+    unsigned int sourceID,
+    unsigned int sinkID,
+    const std::unordered_map<std::pair<int, int>, int, GraphData::PairHash>& residualCapacities,
+    std::vector<int>& parent)
+{
+    std::queue<unsigned int> queue;
+    std::vector<bool> visited(m_nodes.size(), false);
+
+    queue.push(sourceID);
+    visited[sourceID] = true;
+    parent[sourceID] = -1;
+
+    while (!queue.empty())
+    {
+        unsigned int current = queue.front();
+        queue.pop();
+
+        for (unsigned int adj : m_adjacencyList[current])
+        {
+            if (!visited[adj] && residualCapacities.at({ current, adj }) > 0)
+            {
+                parent[adj] = current;
+                if (adj == sinkID)
+                {
+                    unsigned int pathFlow = std::numeric_limits<unsigned int>::max();
+                    unsigned int node = sinkID;
+
+                    while (node != sourceID)
+                    {
+                        unsigned int prev = parent[node];
+                        pathFlow = std::min(pathFlow, static_cast<unsigned int>(residualCapacities.at({ prev, node })));
+                        node = prev;
+                    }
+
+                    return pathFlow;
+                }
+
+                queue.push(adj);
+                visited[adj] = true;
+            }
+        }
+    }
+
+    return 0;
+}
+
 std::vector<std::pair<int, int>> GraphData::primMST()
 {
     int n = m_nodes.size();
