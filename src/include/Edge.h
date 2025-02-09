@@ -8,18 +8,17 @@ public:
     Edge(GraphNode* nodeStart, GraphNode* nodeEnd, int weight = 0, float size = 6.0f);
 
     GraphNode* getStartNode() const;
-    GraphNode* getEndNode() const;
-    glm::vec4  getColor() const;
-    float      getSize() const;
+    GraphNode* getEndNode()   const;
+    glm::vec4  getColor()     const;
+    float      getSize()      const;
 
     void setColor(const glm::vec4& color);
     void setWeight(int weight);
-
     void setDepth(float depth);
-    float getDepth() const;
 
-    int  getWeight() const;
-    bool operator==(const Edge& other) const;
+    float getDepth()  const;
+    int   getWeight() const;
+    bool  operator==(const Edge& other) const;
 
 public:
     static constexpr float kDefaultDepth = 0.9f;

@@ -23,7 +23,7 @@ private:
     bool checkEdgeSelect(glm::vec2 position);
     bool checkValidNodePosition(glm::vec2 position);
 private:
-    static constexpr float kNodeRadius = 30.0f; //TODO: make it adjustable
+    static constexpr float kNodeRadius = 30.0f;
 private:
     GraphNode* m_selectedNode;
     GraphData m_graphData;

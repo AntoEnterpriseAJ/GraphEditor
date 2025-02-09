@@ -94,7 +94,7 @@ void Application::renderUI()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Application::renderGraphEditorUI() //TODO: ADD VIEW ADJ MATRIX BUTTON
+void Application::renderGraphEditorUI()
 {
     ImGui::Begin("Graph");
     bool orientedCheckboxState = m_graphEditor.getGraphData().isOriented();

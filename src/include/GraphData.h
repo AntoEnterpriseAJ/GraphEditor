@@ -24,6 +24,7 @@ public:
     void setOriented(bool oriented);
     void setWeighted(bool weighted);
     void setLogAdjacency(bool log);
+    void inverseGraph();
     void clear();
     void undo();
     
@@ -34,7 +35,6 @@ public:
     std::vector<GraphNode*>& getNodes();
     GraphNode* getNode(unsigned int nodeID);
     Edge* getEdge(unsigned int startNodeID, unsigned int endNodeID);
-    void inverseGraph();
 
     GraphNode* findRoot();
     bool isTree();
@@ -70,9 +70,6 @@ public:
     std::vector<unsigned int> genericPathTraversal(const GraphNode* const startNode) const;
     std::vector<unsigned int> totalGenericPathTraversal(const GraphNode* const startNode) const;
     std::vector<unsigned int> topologicalSort(const GraphNode* const startNode);
-
-
-
 
     void updateAdjacencyList();
     const std::vector<Edge>& getEdges() const;

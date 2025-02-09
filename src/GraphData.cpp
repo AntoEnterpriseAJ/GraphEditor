@@ -73,8 +73,6 @@ void GraphData::clear()
    updateAdjacencyList();
 }
 
-
-// TODO: integrate edgeWeights
 void GraphData::undo()
 {
    if (!m_actions.empty() && !m_edges.empty() && m_actions.top() == Action::newEdge)
@@ -436,7 +434,7 @@ std::vector<std::vector<unsigned int>> GraphData::stronglyConnectedComponents(co
 
 std::vector<unsigned int> GraphData::dijkstraMinimumCost(const GraphNode* const startNode, const GraphNode* const endNode)
 {
-    const unsigned int inf = std::numeric_limits<unsigned int>::max();
+    constexpr unsigned int inf = std::numeric_limits<unsigned int>::max();
     const unsigned int startNodeID = startNode->getInternalID();
     const unsigned int endNodeID = endNode->getInternalID();
 
@@ -627,7 +625,7 @@ std::vector<unsigned int> GraphData::DFS(const GraphNode* const startNode) const
 std::pair<std::vector<std::pair<int, int>>, int> GraphData::fordFulkersonMinCut(const GraphNode* const sourceNode, const GraphNode* const sinkNode)
 {
     unsigned int sourceID = sourceNode->getInternalID();
-    unsigned int sinkID = sinkNode->getInternalID();
+    unsigned int sinkID   = sinkNode->getInternalID();
 
     std::unordered_map<std::pair<int, int>, int, GraphData::PairHash> residualCapacities = m_edgeWeights;
 
@@ -1097,8 +1095,6 @@ std::vector<unsigned int> GraphData::topologicalSort(const GraphNode* const star
 }
 
 std::vector<unsigned int> GraphData::totalGenericPathTraversal(const GraphNode* const startNode) const 
-//TODO: fix for one node
-//TOOD: repeat genericPathTraversal for the total
 {
     std::unordered_set<unsigned int> visited;
     visited.insert(startNode->getInternalID());
