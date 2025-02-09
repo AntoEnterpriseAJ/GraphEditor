@@ -1,4 +1,4 @@
-# OpenGL Graph, Maze, and Map Editors
+![image](https://github.com/user-attachments/assets/69c798b9-587a-4759-9efd-e6ccbb1e9c15)# OpenGL Graph, Maze, and Map Editors
 
 A C++ project that visualizes and manipulates various graphs, mazes, and map data using **OpenGL** for rendering. It includes:
 
@@ -45,6 +45,7 @@ A C++ project that visualizes and manipulates various graphs, mazes, and map dat
 
 ## Screenshots
 ![image](https://github.com/user-attachments/assets/880f8dec-14aa-4d47-a5ef-3dca3d45dded)
+![image](https://github.com/user-attachments/assets/ec79f8d3-283a-4cfc-b798-c44667baa81a)
 ![image](https://github.com/user-attachments/assets/41ab6c53-38c0-4518-97bb-24cbbefc7730)
 ![image](https://github.com/user-attachments/assets/5f810a00-5204-4bcd-bf51-ef6df8ac12aa)
 
